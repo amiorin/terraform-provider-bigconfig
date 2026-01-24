@@ -1,19 +1,18 @@
 (ns server
-  (:require [clojure.java.io :as io])
-  (:import (java.io File)
-           (java.net StandardProtocolFamily)
-           (java.nio.file Files)
-           (java.nio.file.attribute FileAttribute)
-           (io.grpc Server)
-           (io.grpc.netty NettyServerBuilder)
-           (io.netty.channel.epoll EpollEventLoopGroup EpollServerDomainSocketChannel)
-           (io.netty.channel.kqueue KQueueEventLoopGroup KQueueServerDomainSocketChannel)
-           (io.netty.channel.unix DomainSocketAddress)
-           (io.grpc.netty GrpcSslContexts)
-           (io.netty.handler.ssl SslContextBuilder ClientAuth)
-           (com.terraform.plugin.v6 ProviderGrpc$ProviderImplBase)
-           (com.terraform.plugin.v6 GetProviderSchema$Request GetProviderSchema$Response)
-           (com.terraform.plugin.v6 Schema)))
+  (:require
+   [cheshire.core :as json]
+   [clojure.java.io :as io])
+  (:import
+   (com.terraform.plugin.v6 ProviderGrpc$ProviderImplBase)
+   (com.terraform.plugin.v6 GetProviderSchema$Response)
+   (com.terraform.plugin.v6 Schema)
+   (io.grpc.netty NettyServerBuilder)
+   (io.grpc.netty GrpcSslContexts)
+   (io.netty.channel.epoll EpollEventLoopGroup EpollServerDomainSocketChannel)
+   (io.netty.channel.kqueue KQueueEventLoopGroup KQueueServerDomainSocketChannel)
+   (io.netty.channel.unix DomainSocketAddress)
+   (io.netty.handler.ssl ClientAuth)
+   (java.io File)))
 
 (defn- get-os []
   (let [os-name (System/getProperty "os.name" "generic")]
@@ -63,15 +62,26 @@
                         (.build))
         provider-service (create-provider-service)]
     (-> (new-uds-builder socket-path)
-        (.sslContext ssl-context)
+        #_(.sslContext ssl-context)
         (.addService provider-service)
         (.build))))
 
+(.pid (java.lang.ProcessHandle/current))
+
 (defn start-server []
-  (let [s (create-server)]
+  (let [s (create-server)
+        data {"registry.terraform.io/amiorin/big-config" {:Protocol "grpc"
+                                                           :ProtocolVersion 6
+                                                           :Pid (.pid (java.lang.ProcessHandle/current))
+                                                           :Test true
+                                                           :Addr {:Network "unix"
+                                                                  :String socket-path}}}]
     (reset! server s)
     (.start s)
-    (println "Server started, listening on" socket-path)
+    (-> data
+        json/generate-string
+        (->> (format "TF_REATTACH_PROVIDERS='%s'"))
+        println)
     (.awaitTermination s)))
 
 (defn stop-server []
