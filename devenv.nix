@@ -5,6 +5,7 @@
   languages.ansible.enable = true;
   languages.opentofu.enable = true;
   packages = [
+    pkgs.leiningen
     pkgs.protobuf
     pkgs.buf
   ];
