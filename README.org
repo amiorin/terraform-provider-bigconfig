@@ -18,3 +18,17 @@
 | https://github.com/fourteatoo/protobluff                                              | Grpc, very old         |
 | https://blog.jmibanez.com/2018/07/22/grpc-with-clojure-and-leiningen.html             |                        |
 | https://github.com/aphyr/less-awful-ssl                                               |                        |
+
+buf curl --schema ./proto \
+  --cert certs/client-cert.pem \
+  --key certs/client-key.pem \
+  --unix-socket /tmp/tf-provider.sock \
+  --protocol grpc \
+  --insecure \
+  https://localhost/tfplugin6.Provider/GetMetadata
+
+buf curl --schema ./proto \
+  --unix-socket /var/folders/r4/w6487z_x3jq6fzwt1w2k1v540000gn/T/plugin1725000220 \
+  --protocol grpc \
+  --http2-prior-knowledge \
+  http://localhost/tfplugin6.Provider/GetMetadata
