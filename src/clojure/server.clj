@@ -3,7 +3,6 @@
    [babashka.process :as p]
    [cheshire.core :as json]
    [clojure.java.io :as io]
-   [pronto.core :as pr]
    [pronto.core :as pr])
   (:import
    (com.terraform.plugin.v6 GetProviderSchema$Response ProviderGrpc$ProviderImplBase ServerCapabilities)
@@ -31,12 +30,12 @@
 
 (def socket-path "/tmp/tf-provider.sock")
 
-(def data {"registry.terraform.io/amiorin/big-config" {:Protocol "grpc"
-                                                       :ProtocolVersion 6
-                                                       :Pid (.pid (java.lang.ProcessHandle/current))
-                                                       :Test true
-                                                       :Addr {:Network "unix"
-                                                              :String socket-path}}})
+(def data {"registry.terraform.io/amiorin/bigconfig" {:Protocol "grpc"
+                                                      :ProtocolVersion 6
+                                                      :Pid (.pid (java.lang.ProcessHandle/current))
+                                                      :Test true
+                                                      :Addr {:Network "unix"
+                                                             :String socket-path}}})
 
 (defn- new-uds-builder [socket-path]
   (let [socket-file (File. socket-path)
@@ -64,27 +63,40 @@
 (comment
   (pr/clj-map->proto-map my-mapper GetProviderSchema$Response {:provider {}}))
 
-(do
-  (pr/defmapper my-mapper [GetProviderSchema$Response ServerCapabilities])
-  (defn- create-provider-service []
-    (proxy [ProviderGrpc$ProviderImplBase] []
-      (getProviderSchema [request observer]
-        #_(send-error! observer "getProviderSchema")
-        (let [response (-> (pr/clj-map->proto-map my-mapper GetProviderSchema$Response {:provider {:block {}}})
-                           pr/proto-map->proto)]
-          (doto observer
-            (.onNext response)
-            (.onCompleted))))))
-  (let [socket-file (File. socket-path)]
-    (when (.exists socket-file)
-      (.delete socket-file)))
-  (future (start-server))
-  (p/shell {:continue true
-            :out *out*
-            :err *err*
-            :extra-env {"TF_LOG" "ERROR"
-                        "TF_REATTACH_PROVIDERS" (json/generate-string data)}} "tofu plan")
-  (stop-server))
+(pr/defmapper my-mapper [GetProviderSchema$Response ServerCapabilities])
+
+(defn- create-provider-service []
+  (proxy [ProviderGrpc$ProviderImplBase] []
+    (getProviderSchema [request observer]
+      #_(send-error! observer "getProviderSchema")
+      (let [response (-> (pr/clj-map->proto-map my-mapper GetProviderSchema$Response {:provider {:block {}}})
+                         pr/proto-map->proto)]
+        (doto observer
+          (.onNext response)
+          (.onCompleted))))))
+
+(comment
+  (do
+    (pr/defmapper my-mapper [GetProviderSchema$Response ServerCapabilities])
+    (defn- create-provider-service []
+      (proxy [ProviderGrpc$ProviderImplBase] []
+        (getProviderSchema [request observer]
+          #_(send-error! observer "getProviderSchema")
+          (let [response (-> (pr/clj-map->proto-map my-mapper GetProviderSchema$Response {:provider {:block {}}})
+                             pr/proto-map->proto)]
+            (doto observer
+              (.onNext response)
+              (.onCompleted))))))
+    (let [socket-file (File. socket-path)]
+      (when (.exists socket-file)
+        (.delete socket-file)))
+    (future (start-server))
+    (p/shell {:continue true
+              :out *out*
+              :err *err*
+              :extra-env {"TF_LOG" "ERROR"
+                          "TF_REATTACH_PROVIDERS" (json/generate-string data)}} "tofu plan")
+    (stop-server)))
 
 (defn- create-server []
   (let [server-cert (io/file "certs/server-cert.pem")

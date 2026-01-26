@@ -1,5 +1,7 @@
 #+title: Terraform
 
+devenv shell --impure
+
 |---------------------------------------------------------------------------------------+------------------------|
 | https://github.com/andfadeev/clojure-grpc-server                                      |                        |
 | https://github.com/bufbuild/buf                                                       |                        |
