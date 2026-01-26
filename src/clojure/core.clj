@@ -11,7 +11,11 @@
   (-> (with-open [r (io/reader "schema.json")]
         (json/parse-stream r true))
       :provider_schemas
-      :registry.terraform.io/hashicorp/null
+      (get "registry.terraform.io/hashicorp/null")
       :resource_schemas
       :null_resource
-      :block))
+      :block)
+
+  (-> (with-open [r (io/reader "provider_schema.json")]
+        (json/parse-stream r true))
+      keys))

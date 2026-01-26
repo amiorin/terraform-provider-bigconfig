@@ -32,3 +32,9 @@ buf curl --schema ./proto \
   --protocol grpc \
   --http2-prior-knowledge \
   http://localhost/tfplugin6.Provider/GetMetadata
+
+buf curl --schema ./proto \
+  --unix-socket /var/folders/r4/w6487z_x3jq6fzwt1w2k1v540000gn/T/plugin1145296340 \
+  --protocol grpc \
+  --http2-prior-knowledge \
+  http://localhost/tfplugin6.Provider/GetProviderSchema

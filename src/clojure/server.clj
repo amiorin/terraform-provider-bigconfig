@@ -1,18 +1,22 @@
 (ns server
   (:require
+   [babashka.process :as p]
    [cheshire.core :as json]
    [clojure.java.io :as io])
   (:import
    (com.terraform.plugin.v6 ProviderGrpc$ProviderImplBase)
-   (com.terraform.plugin.v6 GetProviderSchema$Response)
-   (com.terraform.plugin.v6 Schema)
    (io.grpc.netty NettyServerBuilder)
    (io.grpc.netty GrpcSslContexts)
+   io.grpc.Status
    (io.netty.channel.epoll EpollEventLoopGroup EpollServerDomainSocketChannel)
    (io.netty.channel.kqueue KQueueEventLoopGroup KQueueServerDomainSocketChannel)
    (io.netty.channel.unix DomainSocketAddress)
    (io.netty.handler.ssl ClientAuth)
    (java.io File)))
+
+(declare start-server)
+
+(declare stop-server)
 
 (defn- get-os []
   (let [os-name (System/getProperty "os.name" "generic")]
@@ -24,6 +28,13 @@
 (defonce server (atom nil))
 
 (def socket-path "/tmp/tf-provider.sock")
+
+(def data {"registry.terraform.io/amiorin/big-config" {:Protocol "grpc"
+                                                       :ProtocolVersion 6
+                                                       :Pid (.pid (java.lang.ProcessHandle/current))
+                                                       :Test true
+                                                       :Addr {:Network "unix"
+                                                              :String socket-path}}})
 
 (defn- new-uds-builder [socket-path]
   (let [socket-file (File. socket-path)
@@ -40,17 +51,37 @@
                   (throw (UnsupportedOperationException. "Unsupported OS")))]
     builder))
 
-(defn- create-provider-service []
-  (proxy [ProviderGrpc$ProviderImplBase] []
-    (getProviderSchema [request observer]
-      (let [response (-> (GetProviderSchema$Response/newBuilder)
-                         (.setProvider (-> (Schema/newBuilder)
-                                           (.setVersion 1)
-                                           (.build)))
-                         (.build))]
-        (doto observer
-          (.onNext response)
-          (.onCompleted))))))
+(defn send-error!
+  "Sends a gRPC INTERNAL error with a custom message."
+  [observer msg]
+  (let [ex (-> Status/INTERNAL
+               (.withDescription (str msg))
+               (.asRuntimeException))]
+    (.onError observer ex)))
+
+(do
+  (defn- create-provider-service []
+    (proxy [ProviderGrpc$ProviderImplBase] []
+      (getProviderSchema [request observer]
+        (send-error! observer "getProviderSchema")
+        #_(let [response (-> (GetProviderSchema$Response/newBuilder)
+                             (.setProvider (-> (Schema/newBuilder)
+                                               (.setVersion 1)
+                                               (.build)))
+                             (.build))]
+            (doto observer
+              (.onNext response)
+              (.onCompleted))))))
+  (let [socket-file (File. socket-path)]
+    (when (.exists socket-file)
+      (.delete socket-file)))
+  (future (start-server))
+  (p/shell {:continue true
+            :out *out*
+            :err *err*
+            :extra-env {"TF_LOG" "ERROR"
+                        "TF_REATTACH_PROVIDERS" (json/generate-string data)}} "tofu plan")
+  (stop-server))
 
 (defn- create-server []
   (let [server-cert (io/file "certs/server-cert.pem")
@@ -66,16 +97,8 @@
         (.addService provider-service)
         (.build))))
 
-(.pid (java.lang.ProcessHandle/current))
-
 (defn start-server []
-  (let [s (create-server)
-        data {"registry.terraform.io/amiorin/big-config" {:Protocol "grpc"
-                                                           :ProtocolVersion 6
-                                                           :Pid (.pid (java.lang.ProcessHandle/current))
-                                                           :Test true
-                                                           :Addr {:Network "unix"
-                                                                  :String socket-path}}}]
+  (let [s (create-server)]
     (reset! server s)
     (.start s)
     (-> data

@@ -1,0 +1,5422 @@
+{
+  "provider": {
+    "block": {
+      "attributes": [
+        {
+          "name": "endpoint",
+          "type": "InN0cmluZyI=",
+          "description": "The Hetzner Cloud API endpoint, can be used to override the default API Endpoint https://api.hetzner.cloud/v1.",
+          "optional": true
+        },
+        {
+          "name": "endpoint_hetzner",
+          "type": "InN0cmluZyI=",
+          "description": "The Hetzner API endpoint, can be used to override the default API Endpoint https://api.hetzner.com/v1.",
+          "optional": true
+        },
+        {
+          "name": "poll_function",
+          "type": "InN0cmluZyI=",
+          "description": "The type of function to be used during the polling.",
+          "optional": true
+        },
+        {
+          "name": "poll_interval",
+          "type": "InN0cmluZyI=",
+          "description": "The interval at which actions are polled by the client. Default `500ms`. Increase this interval if you run into rate limiting errors.",
+          "optional": true
+        },
+        {
+          "name": "token",
+          "type": "InN0cmluZyI=",
+          "description": "The Hetzner Cloud API token, can also be specified with the HCLOUD_TOKEN environment variable.",
+          "optional": true,
+          "sensitive": true
+        }
+      ]
+    }
+  },
+  "resourceSchemas": {
+    "hcloud_certificate": {
+      "version": "1",
+      "block": {
+        "attributes": [
+          {
+            "name": "certificate",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "created",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "domain_names",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "computed": true
+          },
+          {
+            "name": "fingerprint",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "not_valid_after",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "not_valid_before",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "private_key",
+            "type": "InN0cmluZyI=",
+            "required": true,
+            "sensitive": true
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          }
+        ]
+      }
+    },
+    "hcloud_firewall": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "required": true
+          }
+        ],
+        "blockTypes": [
+          {
+            "typeName": "apply_to",
+            "block": {
+              "attributes": [
+                {
+                  "name": "label_selector",
+                  "type": "InN0cmluZyI=",
+                  "optional": true,
+                  "computed": true
+                },
+                {
+                  "name": "server",
+                  "type": "Im51bWJlciI=",
+                  "optional": true,
+                  "computed": true
+                }
+              ]
+            },
+            "nesting": "SET"
+          },
+          {
+            "typeName": "rule",
+            "block": {
+              "attributes": [
+                {
+                  "name": "description",
+                  "type": "InN0cmluZyI=",
+                  "optional": true
+                },
+                {
+                  "name": "destination_ips",
+                  "type": "WyJzZXQiLCJzdHJpbmciXQ==",
+                  "optional": true
+                },
+                {
+                  "name": "direction",
+                  "type": "InN0cmluZyI=",
+                  "required": true
+                },
+                {
+                  "name": "port",
+                  "type": "InN0cmluZyI=",
+                  "optional": true
+                },
+                {
+                  "name": "protocol",
+                  "type": "InN0cmluZyI=",
+                  "required": true
+                },
+                {
+                  "name": "source_ips",
+                  "type": "WyJzZXQiLCJzdHJpbmciXQ==",
+                  "optional": true
+                }
+              ]
+            },
+            "nesting": "SET"
+          }
+        ]
+      }
+    },
+    "hcloud_firewall_attachment": {
+      "block": {
+        "attributes": [
+          {
+            "name": "firewall_id",
+            "type": "Im51bWJlciI=",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "label_selectors",
+            "type": "WyJzZXQiLCJzdHJpbmciXQ==",
+            "optional": true
+          },
+          {
+            "name": "server_ids",
+            "type": "WyJzZXQiLCJudW1iZXIiXQ==",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_floating_ip": {
+      "block": {
+        "attributes": [
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "description",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "home_location",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "ip_address",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "ip_network",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "server_id",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "required": true
+          }
+        ]
+      }
+    },
+    "hcloud_floating_ip_assignment": {
+      "block": {
+        "attributes": [
+          {
+            "name": "floating_ip_id",
+            "type": "Im51bWJlciI=",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "server_id",
+            "type": "Im51bWJlciI=",
+            "required": true
+          }
+        ]
+      }
+    },
+    "hcloud_load_balancer": {
+      "block": {
+        "attributes": [
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "ipv4",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "ipv6",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "load_balancer_type",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "location",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "network_id",
+            "type": "Im51bWJlciI=",
+            "computed": true
+          },
+          {
+            "name": "network_ip",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "network_zone",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          }
+        ],
+        "blockTypes": [
+          {
+            "typeName": "algorithm",
+            "block": {
+              "attributes": [
+                {
+                  "name": "type",
+                  "type": "InN0cmluZyI=",
+                  "optional": true,
+                  "computed": true
+                }
+              ]
+            },
+            "nesting": "LIST",
+            "maxItems": "1"
+          },
+          {
+            "typeName": "target",
+            "block": {
+              "attributes": [
+                {
+                  "name": "server_id",
+                  "type": "Im51bWJlciI=",
+                  "optional": true
+                },
+                {
+                  "name": "type",
+                  "type": "InN0cmluZyI=",
+                  "required": true
+                },
+                {
+                  "name": "use_private_ip",
+                  "type": "ImJvb2wi",
+                  "optional": true,
+                  "deprecated": true
+                }
+              ],
+              "deprecated": true
+            },
+            "nesting": "SET"
+          }
+        ]
+      }
+    },
+    "hcloud_load_balancer_network": {
+      "block": {
+        "attributes": [
+          {
+            "name": "enable_public_interface",
+            "type": "ImJvb2wi",
+            "description": "Wether the Load Balancer public interface is enabled. Default is `true`.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "ip",
+            "type": "InN0cmluZyI=",
+            "description": "IP to assign to the Load Balancer.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "load_balancer_id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Load Balancer.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "network_id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Network to attach the Load Balancer to. Using `subnet_id` is preferred. Required if `subnet_id` is not set. If `subnet_id` or `ip` are not set, the Load Balancer will be attached to the last subnet (ordered by `ip_range`).",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "subnet_id",
+            "type": "InN0cmluZyI=",
+            "description": "ID of the Subnet to attach the Load Balancer to. Required if `network_id` is not set.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "Manage the attachment of a Load Balancer in a Network in the Hetzner Cloud.",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_load_balancer_service": {
+      "block": {
+        "attributes": [
+          {
+            "name": "destination_port",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "listen_port",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "load_balancer_id",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "protocol",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "proxyprotocol",
+            "type": "ImJvb2wi",
+            "optional": true,
+            "computed": true
+          }
+        ],
+        "blockTypes": [
+          {
+            "typeName": "health_check",
+            "block": {
+              "attributes": [
+                {
+                  "name": "interval",
+                  "type": "Im51bWJlciI=",
+                  "required": true
+                },
+                {
+                  "name": "port",
+                  "type": "Im51bWJlciI=",
+                  "required": true
+                },
+                {
+                  "name": "protocol",
+                  "type": "InN0cmluZyI=",
+                  "required": true
+                },
+                {
+                  "name": "retries",
+                  "type": "Im51bWJlciI=",
+                  "required": true
+                },
+                {
+                  "name": "timeout",
+                  "type": "Im51bWJlciI=",
+                  "required": true
+                }
+              ],
+              "blockTypes": [
+                {
+                  "typeName": "http",
+                  "block": {
+                    "attributes": [
+                      {
+                        "name": "domain",
+                        "type": "InN0cmluZyI=",
+                        "optional": true
+                      },
+                      {
+                        "name": "path",
+                        "type": "InN0cmluZyI=",
+                        "optional": true
+                      },
+                      {
+                        "name": "response",
+                        "type": "InN0cmluZyI=",
+                        "optional": true
+                      },
+                      {
+                        "name": "status_codes",
+                        "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+                        "optional": true
+                      },
+                      {
+                        "name": "tls",
+                        "type": "ImJvb2wi",
+                        "optional": true
+                      }
+                    ]
+                  },
+                  "nesting": "LIST",
+                  "maxItems": "1"
+                }
+              ]
+            },
+            "nesting": "LIST",
+            "maxItems": "1"
+          },
+          {
+            "typeName": "http",
+            "block": {
+              "attributes": [
+                {
+                  "name": "certificates",
+                  "type": "WyJzZXQiLCJudW1iZXIiXQ==",
+                  "optional": true,
+                  "computed": true
+                },
+                {
+                  "name": "cookie_lifetime",
+                  "type": "Im51bWJlciI=",
+                  "optional": true,
+                  "computed": true
+                },
+                {
+                  "name": "cookie_name",
+                  "type": "InN0cmluZyI=",
+                  "optional": true,
+                  "computed": true
+                },
+                {
+                  "name": "redirect_http",
+                  "type": "ImJvb2wi",
+                  "optional": true,
+                  "computed": true
+                },
+                {
+                  "name": "sticky_sessions",
+                  "type": "ImJvb2wi",
+                  "optional": true,
+                  "computed": true
+                }
+              ]
+            },
+            "nesting": "LIST",
+            "maxItems": "1"
+          }
+        ]
+      }
+    },
+    "hcloud_load_balancer_target": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "ip",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "label_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "load_balancer_id",
+            "type": "Im51bWJlciI=",
+            "required": true
+          },
+          {
+            "name": "server_id",
+            "type": "Im51bWJlciI=",
+            "optional": true
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "use_private_ip",
+            "type": "ImJvb2wi",
+            "optional": true,
+            "computed": true
+          }
+        ]
+      }
+    },
+    "hcloud_managed_certificate": {
+      "version": "1",
+      "block": {
+        "attributes": [
+          {
+            "name": "certificate",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "created",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "domain_names",
+            "type": "WyJzZXQiLCJzdHJpbmciXQ==",
+            "required": true
+          },
+          {
+            "name": "fingerprint",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "not_valid_after",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "not_valid_before",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          }
+        ]
+      }
+    },
+    "hcloud_network": {
+      "block": {
+        "attributes": [
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "expose_routes_to_vswitch",
+            "type": "ImJvb2wi",
+            "description": "Enable or disable exposing the routes to the vSwitch connection. The exposing only takes effect if a vSwitch connection is active.",
+            "optional": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "ip_range",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "required": true
+          }
+        ]
+      }
+    },
+    "hcloud_network_route": {
+      "block": {
+        "attributes": [
+          {
+            "name": "destination",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "gateway",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "network_id",
+            "type": "Im51bWJlciI=",
+            "required": true
+          }
+        ]
+      }
+    },
+    "hcloud_network_subnet": {
+      "block": {
+        "attributes": [
+          {
+            "name": "gateway",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "ip_range",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "network_id",
+            "type": "Im51bWJlciI=",
+            "required": true
+          },
+          {
+            "name": "network_zone",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "vswitch_id",
+            "type": "Im51bWJlciI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_placement_group": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "servers",
+            "type": "WyJzZXQiLCJudW1iZXIiXQ==",
+            "computed": true
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "required": true
+          }
+        ]
+      }
+    },
+    "hcloud_primary_ip": {
+      "block": {
+        "attributes": [
+          {
+            "name": "assignee_id",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "assignee_type",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "auto_delete",
+            "type": "ImJvb2wi",
+            "required": true
+          },
+          {
+            "name": "datacenter",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true,
+            "deprecated": true
+          },
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "ip_address",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "ip_network",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true
+          },
+          {
+            "name": "location",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "required": true
+          }
+        ]
+      }
+    },
+    "hcloud_rdns": {
+      "block": {
+        "attributes": [
+          {
+            "name": "dns_ptr",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "floating_ip_id",
+            "type": "Im51bWJlciI=",
+            "optional": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "ip_address",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "load_balancer_id",
+            "type": "Im51bWJlciI=",
+            "optional": true
+          },
+          {
+            "name": "primary_ip_id",
+            "type": "Im51bWJlciI=",
+            "optional": true
+          },
+          {
+            "name": "server_id",
+            "type": "Im51bWJlciI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_server": {
+      "block": {
+        "attributes": [
+          {
+            "name": "allow_deprecated_images",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "backup_window",
+            "type": "InN0cmluZyI=",
+            "computed": true,
+            "deprecated": true
+          },
+          {
+            "name": "backups",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "datacenter",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true,
+            "deprecated": true
+          },
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "firewall_ids",
+            "type": "WyJzZXQiLCJudW1iZXIiXQ==",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "ignore_remote_firewall_ids",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "image",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "ipv4_address",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "ipv6_address",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "ipv6_network",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "iso",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "keep_disk",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true
+          },
+          {
+            "name": "location",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "placement_group_id",
+            "type": "Im51bWJlciI=",
+            "optional": true
+          },
+          {
+            "name": "primary_disk_size",
+            "type": "Im51bWJlciI=",
+            "computed": true
+          },
+          {
+            "name": "rebuild_protection",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "rescue",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "server_type",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "shutdown_before_deletion",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "ssh_keys",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "optional": true
+          },
+          {
+            "name": "status",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "user_data",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ],
+        "blockTypes": [
+          {
+            "typeName": "network",
+            "block": {
+              "attributes": [
+                {
+                  "name": "alias_ips",
+                  "type": "WyJzZXQiLCJzdHJpbmciXQ==",
+                  "optional": true,
+                  "computed": true
+                },
+                {
+                  "name": "ip",
+                  "type": "InN0cmluZyI=",
+                  "optional": true,
+                  "computed": true
+                },
+                {
+                  "name": "mac_address",
+                  "type": "InN0cmluZyI=",
+                  "computed": true
+                },
+                {
+                  "name": "network_id",
+                  "type": "Im51bWJlciI=",
+                  "required": true
+                }
+              ]
+            },
+            "nesting": "SET"
+          },
+          {
+            "typeName": "public_net",
+            "block": {
+              "attributes": [
+                {
+                  "name": "ipv4",
+                  "type": "Im51bWJlciI=",
+                  "optional": true,
+                  "computed": true
+                },
+                {
+                  "name": "ipv4_enabled",
+                  "type": "ImJvb2wi",
+                  "optional": true
+                },
+                {
+                  "name": "ipv6",
+                  "type": "Im51bWJlciI=",
+                  "optional": true,
+                  "computed": true
+                },
+                {
+                  "name": "ipv6_enabled",
+                  "type": "ImJvb2wi",
+                  "optional": true
+                }
+              ]
+            },
+            "nesting": "SET"
+          },
+          {
+            "typeName": "timeouts",
+            "block": {
+              "attributes": [
+                {
+                  "name": "create",
+                  "type": "InN0cmluZyI=",
+                  "optional": true
+                }
+              ]
+            },
+            "nesting": "SINGLE"
+          }
+        ]
+      }
+    },
+    "hcloud_server_network": {
+      "block": {
+        "attributes": [
+          {
+            "name": "alias_ips",
+            "type": "WyJzZXQiLCJzdHJpbmciXQ==",
+            "description": "Additional IPs to assign to the Server.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "ip",
+            "type": "InN0cmluZyI=",
+            "description": "IP to assign to the Server.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "mac_address",
+            "type": "InN0cmluZyI=",
+            "description": "MAC address of the Server on the Network.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "network_id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Network to attach the Server to. Using `subnet_id` is preferred. Required if `subnet_id` is not set. If `subnet_id` or `ip` are not set, the Server will be attached to the last subnet (ordered by `ip_range`).",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "server_id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Server.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "subnet_id",
+            "type": "InN0cmluZyI=",
+            "description": "ID of the Subnet to attach the Server to. Required if `network_id` is not set.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "Manage the attachment of a Server in a Network in the Hetzner Cloud.",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_snapshot": {
+      "block": {
+        "attributes": [
+          {
+            "name": "description",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true
+          },
+          {
+            "name": "server_id",
+            "type": "Im51bWJlciI=",
+            "required": true
+          }
+        ],
+        "blockTypes": [
+          {
+            "typeName": "timeouts",
+            "block": {
+              "attributes": [
+                {
+                  "name": "create",
+                  "type": "InN0cmluZyI=",
+                  "optional": true
+                }
+              ]
+            },
+            "nesting": "SINGLE"
+          }
+        ]
+      }
+    },
+    "hcloud_ssh_key": {
+      "block": {
+        "attributes": [
+          {
+            "name": "fingerprint",
+            "type": "InN0cmluZyI=",
+            "description": "Fingerprint of the SSH public key.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "description": "ID of the SSH Key.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the SSH Key.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "public_key",
+            "type": "InN0cmluZyI=",
+            "description": "Public key of the SSH Key pair. If this is a file, it can be read using the `file` interpolation function.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides a Hetzner Cloud SSH Key resource to manage SSH Keys for server access.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_storage_box": {
+      "block": {
+        "attributes": [
+          {
+            "name": "access_settings",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "reachable_externally",
+                  "type": "ImJvb2wi",
+                  "description": "Whether access from outside the Hetzner network is allowed.",
+                  "optional": true,
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "samba_enabled",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the Samba subsystem is enabled.",
+                  "optional": true,
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "ssh_enabled",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the SSH subsystem is enabled.",
+                  "optional": true,
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "webdav_enabled",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the WebDAV subsystem is enabled.",
+                  "optional": true,
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "zfs_enabled",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the ZFS snapshot folder is visible.",
+                  "optional": true,
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "SINGLE"
+            },
+            "description": "Access settings of the Storage Box.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "description": "Prevent the Storage Box from being accidentally deleted outside of Terraform.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Storage Box.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "location",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Location.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Storage Box.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "password",
+            "type": "InN0cmluZyI=",
+            "description": "Password of the Storage Box. For more details, see the [Storage Boxes password policy](https://docs.hetzner.cloud/reference/hetzner#storage-boxes-password-policy).",
+            "required": true,
+            "sensitive": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "server",
+            "type": "InN0cmluZyI=",
+            "description": "FQDN of the Storage Box.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "snapshot_plan",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "day_of_month",
+                  "type": "Im51bWJlciI=",
+                  "description": "Day of the month when the Snapshot Plan is executed. Null means every day.",
+                  "optional": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "day_of_week",
+                  "type": "Im51bWJlciI=",
+                  "description": "Day of the week when the Snapshot Plan is executed. Starts at 0 for Sunday til 6 for Saturday. Note that this differs from the API, which uses 1 (Monday) through 7 (Sunday). Null means every day.",
+                  "optional": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "hour",
+                  "type": "Im51bWJlciI=",
+                  "description": "Hour when the Snapshot Plan is executed (UTC).",
+                  "required": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "max_snapshots",
+                  "type": "Im51bWJlciI=",
+                  "description": "Maximum amount of Snapshots that will be created by this Snapshot Plan. Older Snapshots will be deleted.",
+                  "required": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "minute",
+                  "type": "Im51bWJlciI=",
+                  "description": "Minute when the Snapshot Plan is executed (UTC).",
+                  "required": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "SINGLE"
+            },
+            "description": "Details of the active snapshot plan.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "ssh_keys",
+            "type": "WyJzZXQiLCJzdHJpbmciXQ==",
+            "description": "SSH public keys in OpenSSH format to inject into the Storage Box. It is not possible to update the SSH Keys through the API, so changing this attribute forces a replace of the Storage Box.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "storage_box_type",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Storage Box Type.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "system",
+            "type": "InN0cmluZyI=",
+            "description": "Host system of the Storage Box.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "username",
+            "type": "InN0cmluZyI=",
+            "description": "Primary username of the Storage Box.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides a Hetzner Storage Box resource.\n\nSee the [Storage Box API documentation](https://docs.hetzner.cloud/reference/hetzner#storage-boxes) for more details.\n\n**Experimental:** Storage Box support is experimental, breaking changes may occur within minor releases.\nSee https://github.com/hetznercloud/terraform-provider-hcloud/issues/1285 for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_storage_box_snapshot": {
+      "block": {
+        "attributes": [
+          {
+            "name": "description",
+            "type": "InN0cmluZyI=",
+            "description": "Description of the Storage Box Snapshot.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Storage Box Snapshot.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "is_automatic",
+            "type": "ImJvb2wi",
+            "description": "Whether the Storage Box Snapshot was created automatically.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Storage Box Snapshot.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "storage_box_id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Storage Box.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides a Hetzner Storage Box Snapshot resource.\n\nSee the [Storage Box Snapshots API documentation](https://docs.hetzner.cloud/reference/hetzner#storage-box-snapshots) for more details.\n\n**Experimental:** Storage Box support is experimental, breaking changes may occur within minor releases.\nSee https://github.com/hetznercloud/terraform-provider-hcloud/issues/1285 for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_storage_box_subaccount": {
+      "block": {
+        "attributes": [
+          {
+            "name": "access_settings",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "reachable_externally",
+                  "type": "ImJvb2wi",
+                  "description": "Whether access from outside the Hetzner network is allowed.",
+                  "optional": true,
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "readonly",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the Subaccount is read-only.",
+                  "optional": true,
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "samba_enabled",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the Samba subsystem is enabled.",
+                  "optional": true,
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "ssh_enabled",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the SSH subsystem is enabled.",
+                  "optional": true,
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "webdav_enabled",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the WebDAV subsystem is enabled.",
+                  "optional": true,
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "SINGLE"
+            },
+            "description": "Access settings for the Subaccount.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "description",
+            "type": "InN0cmluZyI=",
+            "description": "A description of the Storage Box Subaccount.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "home_directory",
+            "type": "InN0cmluZyI=",
+            "description": "Home directory of the Storage Box Subaccount. The directory will be created if it doesn't exist yet.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Storage Box Subaccount.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Storage Box Subaccount.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "password",
+            "type": "InN0cmluZyI=",
+            "description": "Password of the Storage Box. For more details, see the [Storage Boxes password policy](https://docs.hetzner.cloud/reference/hetzner#storage-boxes-password-policy).",
+            "required": true,
+            "sensitive": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "server",
+            "type": "InN0cmluZyI=",
+            "description": "FQDN of the Storage Box Subaccount.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "storage_box_id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Storage Box.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "username",
+            "type": "InN0cmluZyI=",
+            "description": "Username of the Storage Box Subaccount.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides a Hetzner Storage Box Subaccount resource.\n\nSee the [Storage Box Subaccounts API documentation](https://docs.hetzner.cloud/reference/hetzner#storage-box-subaccounts) for more details.\n\n**Experimental:** Storage Box support is experimental, breaking changes may occur within minor releases.\nSee https://github.com/hetznercloud/terraform-provider-hcloud/issues/1285 for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_uploaded_certificate": {
+      "version": "1",
+      "block": {
+        "attributes": [
+          {
+            "name": "certificate",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "created",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "domain_names",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "computed": true
+          },
+          {
+            "name": "fingerprint",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "not_valid_after",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "not_valid_before",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "private_key",
+            "type": "InN0cmluZyI=",
+            "required": true,
+            "sensitive": true
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          }
+        ]
+      }
+    },
+    "hcloud_volume": {
+      "block": {
+        "attributes": [
+          {
+            "name": "automount",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "format",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true
+          },
+          {
+            "name": "linux_device",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "location",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "required": true
+          },
+          {
+            "name": "server_id",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "size",
+            "type": "Im51bWJlciI=",
+            "required": true
+          }
+        ]
+      }
+    },
+    "hcloud_volume_attachment": {
+      "block": {
+        "attributes": [
+          {
+            "name": "automount",
+            "type": "ImJvb2wi",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "server_id",
+            "type": "Im51bWJlciI=",
+            "required": true
+          },
+          {
+            "name": "volume_id",
+            "type": "Im51bWJlciI=",
+            "required": true
+          }
+        ]
+      }
+    },
+    "hcloud_zone": {
+      "block": {
+        "attributes": [
+          {
+            "name": "authoritative_nameservers",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "assigned",
+                  "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+                  "description": "Authoritative Hetzner nameservers assigned to the Zone.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "SINGLE"
+            },
+            "description": "Authoritative nameservers of the Zone.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "description": "Whether delete protection is enabled.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Zone.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "mode",
+            "type": "InN0cmluZyI=",
+            "description": "Mode of the Zone.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Zone.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "primary_nameservers",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "address",
+                  "type": "InN0cmluZyI=",
+                  "description": "Public IPv4 or IPv6 address of the primary nameserver.",
+                  "required": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "port",
+                  "type": "Im51bWJlciI=",
+                  "description": "Port of the primary nameserver.",
+                  "optional": true,
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "tsig_algorithm",
+                  "type": "InN0cmluZyI=",
+                  "description": "Transaction signature (TSIG) algorithm used to generate the TSIG key.",
+                  "optional": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "tsig_key",
+                  "type": "InN0cmluZyI=",
+                  "description": "Transaction signature (TSIG) key",
+                  "optional": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "LIST"
+            },
+            "description": "Primary nameservers of the Zone. Forbidden when mode is primary and required when mode is secondary.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "registrar",
+            "type": "InN0cmluZyI=",
+            "description": "Registrar of the Zone.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "ttl",
+            "type": "Im51bWJlciI=",
+            "description": "Default Time To Live (TTL) of the Zone.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides a Hetzner Cloud Zone resource.\n\nThis can be used to create, modify, and delete Zones.\n\nFor Internationalized domain names (IDN), see the `provider::hcloud::idna` function.\n\nSee the [Zones API documentation](https://docs.hetzner.cloud/reference/cloud#zones) for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_zone_rrset": {
+      "block": {
+        "attributes": [
+          {
+            "name": "change_protection",
+            "type": "ImJvb2wi",
+            "description": "Whether change protection is enabled.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "description": "ID of the Zone RRSet.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Zone RRSet.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "records",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "comment",
+                  "type": "InN0cmluZyI=",
+                  "description": "Comment of the record.",
+                  "optional": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "value",
+                  "type": "InN0cmluZyI=",
+                  "description": "Value of the record.",
+                  "required": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "SET"
+            },
+            "description": "Records of the Zone RRSet.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "ttl",
+            "type": "Im51bWJlciI=",
+            "description": "Time To Live (TTL) of the Zone RRSet.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "description": "Type of the Zone RRSet.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "zone",
+            "type": "InN0cmluZyI=",
+            "description": "ID or Name of the parent Zone.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "Provides a Hetzner Cloud Zone Resource Record Set (RRSet) resource.\n\nThis can be used to create, modify, and delete Zone RRSets.\n\nSee the [Zone RRSets API documentation](https://docs.hetzner.cloud/reference/cloud#zone-rrsets) for more details.\n\n**RRSets of type TXT:**\n\nThe format of TXT records must consist of one or many quoted strings of 255 characters.\n\nA helper function to format TXT record is available at `provider::hcloud::txt_record`.\nSee the examples for more details.\n\n**RRSets of type SOA:**\n\nSOA records are created or deleted by the Hetzner Cloud API when creating or deleting\nthe parent Zone, therefor this Terraform resource will:\n\n- import the RRSet in the state, instead of creating it.\n- remove the RRSet from the state, instead of deleting it.\n- set the SOA record SERIAL value to 0 before saving it to the state, as this value is automatically\n  incremented by the API and would cause issues otherwise.",
+        "descriptionKind": "MARKDOWN"
+      }
+    }
+  },
+  "dataSourceSchemas": {
+    "hcloud_certificate": {
+      "block": {
+        "attributes": [
+          {
+            "name": "certificate",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "created",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "domain_names",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "computed": true
+          },
+          {
+            "name": "fingerprint",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "computed": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "not_valid_after",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "not_valid_before",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_certificates": {
+      "block": {
+        "attributes": [
+          {
+            "name": "certificates",
+            "type": "WyJsaXN0IixbIm9iamVjdCIseyJjZXJ0aWZpY2F0ZSI6InN0cmluZyIsImNyZWF0ZWQiOiJzdHJpbmciLCJkb21haW5fbmFtZXMiOlsibGlzdCIsInN0cmluZyJdLCJmaW5nZXJwcmludCI6InN0cmluZyIsImlkIjoibnVtYmVyIiwibGFiZWxzIjpbIm1hcCIsInN0cmluZyJdLCJuYW1lIjoic3RyaW5nIiwibm90X3ZhbGlkX2FmdGVyIjoic3RyaW5nIiwibm90X3ZhbGlkX2JlZm9yZSI6InN0cmluZyIsInR5cGUiOiJzdHJpbmcifV1d",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_datacenter": {
+      "block": {
+        "attributes": [
+          {
+            "name": "available_server_type_ids",
+            "type": "WyJsaXN0IiwibnVtYmVyIl0=",
+            "description": "List of currently available Server Types in the Datacenter.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "description",
+            "type": "InN0cmluZyI=",
+            "description": "Description of the Datacenter.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Datacenter.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "location",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "description": "Location of the Datacenter. See the [Hetzner Docs](https://docs.hetzner.com/cloud/general/locations/#what-locations-are-there) for more details about locations.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Datacenter.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "supported_server_type_ids",
+            "type": "WyJsaXN0IiwibnVtYmVyIl0=",
+            "description": "List of supported Server Types in the Datacenter.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides details about a specific Hetzner Cloud Datacenter.\n\nUse this resource to get detailed information about a specific Datacenter.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_datacenters": {
+      "block": {
+        "attributes": [
+          {
+            "name": "datacenter_ids",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "computed": true,
+            "deprecated": true
+          },
+          {
+            "name": "datacenters",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "available_server_type_ids",
+                  "type": "WyJsaXN0IiwibnVtYmVyIl0=",
+                  "description": "List of currently available Server Types in the Datacenter.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "description",
+                  "type": "InN0cmluZyI=",
+                  "description": "Description of the Datacenter.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "id",
+                  "type": "Im51bWJlciI=",
+                  "description": "ID of the Datacenter.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "location",
+                  "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+                  "description": "Location of the Datacenter. See the [Hetzner Docs](https://docs.hetzner.com/cloud/general/locations/#what-locations-are-there) for more details about locations.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "name",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the Datacenter.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "supported_server_type_ids",
+                  "type": "WyJsaXN0IiwibnVtYmVyIl0=",
+                  "description": "List of supported Server Types in the Datacenter.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "LIST"
+            },
+            "computed": true
+          },
+          {
+            "name": "descriptions",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "computed": true,
+            "deprecated": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "names",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "computed": true,
+            "deprecated": true
+          }
+        ],
+        "description": "\nProvides a list of available Hetzner Cloud Datacenters.\n\nThis resource may be useful to create highly available infrastructure, distributed across several Datacenters.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_firewall": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "optional": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true
+          },
+          {
+            "name": "most_recent",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ],
+        "blockTypes": [
+          {
+            "typeName": "apply_to",
+            "block": {
+              "attributes": [
+                {
+                  "name": "label_selector",
+                  "type": "InN0cmluZyI=",
+                  "optional": true,
+                  "computed": true
+                },
+                {
+                  "name": "server",
+                  "type": "Im51bWJlciI=",
+                  "optional": true,
+                  "computed": true
+                }
+              ]
+            },
+            "nesting": "SET"
+          },
+          {
+            "typeName": "rule",
+            "block": {
+              "attributes": [
+                {
+                  "name": "description",
+                  "type": "InN0cmluZyI=",
+                  "optional": true
+                },
+                {
+                  "name": "destination_ips",
+                  "type": "WyJzZXQiLCJzdHJpbmciXQ==",
+                  "optional": true
+                },
+                {
+                  "name": "direction",
+                  "type": "InN0cmluZyI=",
+                  "required": true
+                },
+                {
+                  "name": "port",
+                  "type": "InN0cmluZyI=",
+                  "optional": true
+                },
+                {
+                  "name": "protocol",
+                  "type": "InN0cmluZyI=",
+                  "optional": true
+                },
+                {
+                  "name": "source_ips",
+                  "type": "WyJzZXQiLCJzdHJpbmciXQ==",
+                  "optional": true
+                }
+              ]
+            },
+            "nesting": "SET"
+          }
+        ]
+      }
+    },
+    "hcloud_firewalls": {
+      "block": {
+        "attributes": [
+          {
+            "name": "firewalls",
+            "type": "WyJsaXN0IixbIm9iamVjdCIseyJhcHBseV90byI6WyJzZXQiLFsib2JqZWN0Iix7ImxhYmVsX3NlbGVjdG9yIjoic3RyaW5nIiwic2VydmVyIjoibnVtYmVyIn1dXSwiaWQiOiJudW1iZXIiLCJsYWJlbHMiOlsibWFwIiwic3RyaW5nIl0sIm5hbWUiOiJzdHJpbmciLCJydWxlIjpbInNldCIsWyJvYmplY3QiLHsiZGVzY3JpcHRpb24iOiJzdHJpbmciLCJkZXN0aW5hdGlvbl9pcHMiOlsic2V0Iiwic3RyaW5nIl0sImRpcmVjdGlvbiI6InN0cmluZyIsInBvcnQiOiJzdHJpbmciLCJwcm90b2NvbCI6InN0cmluZyIsInNvdXJjZV9pcHMiOlsic2V0Iiwic3RyaW5nIl19XV19XV0=",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "most_recent",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_floating_ip": {
+      "block": {
+        "attributes": [
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "computed": true
+          },
+          {
+            "name": "description",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "home_location",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "ip_address",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "ip_network",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "computed": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "selector",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "deprecated": true
+          },
+          {
+            "name": "server_id",
+            "type": "Im51bWJlciI=",
+            "computed": true
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_floating_ips": {
+      "block": {
+        "attributes": [
+          {
+            "name": "floating_ips",
+            "type": "WyJsaXN0IixbIm9iamVjdCIseyJkZWxldGVfcHJvdGVjdGlvbiI6ImJvb2wiLCJkZXNjcmlwdGlvbiI6InN0cmluZyIsImhvbWVfbG9jYXRpb24iOiJzdHJpbmciLCJpZCI6Im51bWJlciIsImlwX2FkZHJlc3MiOiJzdHJpbmciLCJpcF9uZXR3b3JrIjoic3RyaW5nIiwibGFiZWxzIjpbIm1hcCIsInN0cmluZyJdLCJuYW1lIjoic3RyaW5nIiwic2VydmVyX2lkIjoibnVtYmVyIiwidHlwZSI6InN0cmluZyJ9XV0=",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_image": {
+      "block": {
+        "attributes": [
+          {
+            "name": "architecture",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "created",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "deprecated",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "description",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "include_deprecated",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "computed": true
+          },
+          {
+            "name": "most_recent",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "os_flavor",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "os_version",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "rapid_deploy",
+            "type": "ImJvb2wi",
+            "computed": true
+          },
+          {
+            "name": "selector",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "deprecated": true
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "with_architecture",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "with_status",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_images": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "images",
+            "type": "WyJsaXN0IixbIm9iamVjdCIseyJhcmNoaXRlY3R1cmUiOiJzdHJpbmciLCJjcmVhdGVkIjoic3RyaW5nIiwiZGVwcmVjYXRlZCI6InN0cmluZyIsImRlc2NyaXB0aW9uIjoic3RyaW5nIiwiaWQiOiJudW1iZXIiLCJsYWJlbHMiOlsibWFwIiwic3RyaW5nIl0sIm5hbWUiOiJzdHJpbmciLCJvc19mbGF2b3IiOiJzdHJpbmciLCJvc192ZXJzaW9uIjoic3RyaW5nIiwicmFwaWRfZGVwbG95IjoiYm9vbCIsInNlbGVjdG9yIjoic3RyaW5nIiwidHlwZSI6InN0cmluZyJ9XV0=",
+            "computed": true
+          },
+          {
+            "name": "include_deprecated",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "most_recent",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "with_architecture",
+            "type": "WyJzZXQiLCJzdHJpbmciXQ==",
+            "optional": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "with_status",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_load_balancer": {
+      "block": {
+        "attributes": [
+          {
+            "name": "algorithm",
+            "type": "WyJsaXN0IixbIm9iamVjdCIseyJ0eXBlIjoic3RyaW5nIn1dXQ==",
+            "computed": true
+          },
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "ipv4",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "ipv6",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "computed": true
+          },
+          {
+            "name": "load_balancer_type",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "location",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "network_id",
+            "type": "Im51bWJlciI=",
+            "computed": true
+          },
+          {
+            "name": "network_ip",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "network_zone",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "service",
+            "type": "WyJsaXN0IixbIm9iamVjdCIseyJkZXN0aW5hdGlvbl9wb3J0IjoibnVtYmVyIiwiaGVhbHRoX2NoZWNrIjpbImxpc3QiLFsib2JqZWN0Iix7Imh0dHAiOlsibGlzdCIsWyJvYmplY3QiLHsiZG9tYWluIjoic3RyaW5nIiwicGF0aCI6InN0cmluZyIsInJlc3BvbnNlIjoic3RyaW5nIiwic3RhdHVzX2NvZGVzIjpbImxpc3QiLCJudW1iZXIiXSwidGxzIjoiYm9vbCJ9XV0sImludGVydmFsIjoibnVtYmVyIiwicG9ydCI6Im51bWJlciIsInByb3RvY29sIjoic3RyaW5nIiwicmV0cmllcyI6Im51bWJlciIsInRpbWVvdXQiOiJudW1iZXIifV1dLCJodHRwIjpbImxpc3QiLFsib2JqZWN0Iix7ImNlcnRpZmljYXRlcyI6WyJsaXN0Iiwic3RyaW5nIl0sImNvb2tpZV9saWZldGltZSI6Im51bWJlciIsImNvb2tpZV9uYW1lIjoic3RyaW5nIiwicmVkaXJlY3RfaHR0cCI6ImJvb2wiLCJzdGlja3lfc2Vzc2lvbnMiOiJib29sIn1dXSwibGlzdGVuX3BvcnQiOiJudW1iZXIiLCJwcm90b2NvbCI6InN0cmluZyIsInByb3h5cHJvdG9jb2wiOiJib29sIn1dXQ==",
+            "computed": true
+          },
+          {
+            "name": "target",
+            "type": "WyJsaXN0IixbIm9iamVjdCIseyJsYWJlbF9zZWxlY3RvciI6InN0cmluZyIsInNlcnZlcl9pZCI6Im51bWJlciIsInR5cGUiOiJzdHJpbmcifV1d",
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_load_balancer_type": {
+      "block": {
+        "attributes": [
+          {
+            "name": "description",
+            "type": "InN0cmluZyI=",
+            "description": "Description of the Load Balancer Type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Load Balancer Type.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "max_assigned_certificates",
+            "type": "Im51bWJlciI=",
+            "description": "Maximum number of certificates that can be assigned for the Load Balancer of this type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "max_connections",
+            "type": "Im51bWJlciI=",
+            "description": "Maximum number of simultaneous open connections for the Load Balancer of this type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "max_services",
+            "type": "Im51bWJlciI=",
+            "description": "Maximum number of services for the Load Balancer of this type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "max_targets",
+            "type": "Im51bWJlciI=",
+            "description": "Maximum number of targets for the Load Balancer of this type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Load Balancer Type.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides details about a specific Hetzner Cloud Load Balancer Type.\n\nUse this resource to get detailed information about a specific Load Balancer Type.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_load_balancer_types": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "load_balancer_types",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "description",
+                  "type": "InN0cmluZyI=",
+                  "description": "Description of the Load Balancer Type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "id",
+                  "type": "Im51bWJlciI=",
+                  "description": "ID of the Load Balancer Type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "max_assigned_certificates",
+                  "type": "Im51bWJlciI=",
+                  "description": "Maximum number of certificates that can be assigned for the Load Balancer of this type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "max_connections",
+                  "type": "Im51bWJlciI=",
+                  "description": "Maximum number of simultaneous open connections for the Load Balancer of this type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "max_services",
+                  "type": "Im51bWJlciI=",
+                  "description": "Maximum number of services for the Load Balancer of this type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "max_targets",
+                  "type": "Im51bWJlciI=",
+                  "description": "Maximum number of targets for the Load Balancer of this type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "name",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the Load Balancer Type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "LIST"
+            },
+            "computed": true
+          }
+        ],
+        "description": "\nProvides a list of available Hetzner Cloud Load Balancer Types.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_load_balancers": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "load_balancers",
+            "type": "WyJsaXN0IixbIm9iamVjdCIseyJhbGdvcml0aG0iOlsibGlzdCIsWyJvYmplY3QiLHsidHlwZSI6InN0cmluZyJ9XV0sImRlbGV0ZV9wcm90ZWN0aW9uIjoiYm9vbCIsImlkIjoibnVtYmVyIiwiaXB2NCI6InN0cmluZyIsImlwdjYiOiJzdHJpbmciLCJsYWJlbHMiOlsibWFwIiwic3RyaW5nIl0sImxvYWRfYmFsYW5jZXJfdHlwZSI6InN0cmluZyIsImxvY2F0aW9uIjoic3RyaW5nIiwibmFtZSI6InN0cmluZyIsIm5ldHdvcmtfaWQiOiJudW1iZXIiLCJuZXR3b3JrX2lwIjoic3RyaW5nIiwibmV0d29ya196b25lIjoic3RyaW5nIiwic2VydmljZSI6WyJsaXN0IixbIm9iamVjdCIseyJkZXN0aW5hdGlvbl9wb3J0IjoibnVtYmVyIiwiaGVhbHRoX2NoZWNrIjpbImxpc3QiLFsib2JqZWN0Iix7Imh0dHAiOlsibGlzdCIsWyJvYmplY3QiLHsiZG9tYWluIjoic3RyaW5nIiwicGF0aCI6InN0cmluZyIsInJlc3BvbnNlIjoic3RyaW5nIiwic3RhdHVzX2NvZGVzIjpbImxpc3QiLCJudW1iZXIiXSwidGxzIjoiYm9vbCJ9XV0sImludGVydmFsIjoibnVtYmVyIiwicG9ydCI6Im51bWJlciIsInByb3RvY29sIjoic3RyaW5nIiwicmV0cmllcyI6Im51bWJlciIsInRpbWVvdXQiOiJudW1iZXIifV1dLCJodHRwIjpbImxpc3QiLFsib2JqZWN0Iix7ImNlcnRpZmljYXRlcyI6WyJsaXN0Iiwic3RyaW5nIl0sImNvb2tpZV9saWZldGltZSI6Im51bWJlciIsImNvb2tpZV9uYW1lIjoic3RyaW5nIiwicmVkaXJlY3RfaHR0cCI6ImJvb2wiLCJzdGlja3lfc2Vzc2lvbnMiOiJib29sIn1dXSwibGlzdGVuX3BvcnQiOiJudW1iZXIiLCJwcm90b2NvbCI6InN0cmluZyIsInByb3h5cHJvdG9jb2wiOiJib29sIn1dXSwidGFyZ2V0IjpbImxpc3QiLFsib2JqZWN0Iix7ImxhYmVsX3NlbGVjdG9yIjoic3RyaW5nIiwic2VydmVyX2lkIjoibnVtYmVyIiwidHlwZSI6InN0cmluZyJ9XV19XV0=",
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_location": {
+      "block": {
+        "attributes": [
+          {
+            "name": "city",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the closest city to the Location. City name and optionally state in short form.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "country",
+            "type": "InN0cmluZyI=",
+            "description": "Country the Location resides in. ISO 3166-1 alpha-2 code of the country.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "description",
+            "type": "InN0cmluZyI=",
+            "description": "Description of the Location.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Location.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "latitude",
+            "type": "Im51bWJlciI=",
+            "description": "Latitude of the city closest to the Location.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "longitude",
+            "type": "Im51bWJlciI=",
+            "description": "Longitude of the city closest to the Location.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Location.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "network_zone",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Network Zone this Location resides in.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides details about a specific Hetzner Cloud Location.\n\nUse this resource to get detailed information about a specific Location.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_locations": {
+      "block": {
+        "attributes": [
+          {
+            "name": "descriptions",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "computed": true,
+            "deprecated": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "location_ids",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "computed": true,
+            "deprecated": true
+          },
+          {
+            "name": "locations",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "city",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the closest city to the Location. City name and optionally state in short form.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "country",
+                  "type": "InN0cmluZyI=",
+                  "description": "Country the Location resides in. ISO 3166-1 alpha-2 code of the country.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "description",
+                  "type": "InN0cmluZyI=",
+                  "description": "Description of the Location.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "id",
+                  "type": "Im51bWJlciI=",
+                  "description": "ID of the Location.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "latitude",
+                  "type": "Im51bWJlciI=",
+                  "description": "Latitude of the city closest to the Location.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "longitude",
+                  "type": "Im51bWJlciI=",
+                  "description": "Longitude of the city closest to the Location.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "name",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the Location.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "network_zone",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the Network Zone this Location resides in.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "LIST"
+            },
+            "computed": true
+          },
+          {
+            "name": "names",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "computed": true,
+            "deprecated": true
+          }
+        ],
+        "description": "\nProvides a list of available Hetzner Cloud Locations.\n\nThis resource may be useful to create highly available infrastructure, distributed across several locations.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_network": {
+      "block": {
+        "attributes": [
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "computed": true
+          },
+          {
+            "name": "expose_routes_to_vswitch",
+            "type": "ImJvb2wi",
+            "description": "Indicates if the routes from this network should be exposed to the vSwitch connection. The exposing only takes effect if a vSwitch connection is active.",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "ip_range",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "most_recent",
+            "type": "ImJvb2wi",
+            "optional": true,
+            "deprecated": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_networks": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "networks",
+            "type": "WyJsaXN0IixbIm9iamVjdCIseyJkZWxldGVfcHJvdGVjdGlvbiI6ImJvb2wiLCJleHBvc2Vfcm91dGVzX3RvX3Zzd2l0Y2giOiJib29sIiwiaWQiOiJudW1iZXIiLCJpcF9yYW5nZSI6InN0cmluZyIsImxhYmVscyI6WyJtYXAiLCJzdHJpbmciXSwibmFtZSI6InN0cmluZyJ9XV0=",
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_placement_group": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "most_recent",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "servers",
+            "type": "WyJsaXN0IiwibnVtYmVyIl0=",
+            "computed": true
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_placement_groups": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "most_recent",
+            "type": "ImJvb2wi",
+            "optional": true
+          },
+          {
+            "name": "placement_groups",
+            "type": "WyJsaXN0IixbIm9iamVjdCIseyJpZCI6Im51bWJlciIsImxhYmVscyI6WyJtYXAiLCJzdHJpbmciXSwibmFtZSI6InN0cmluZyIsInNlcnZlcnMiOlsibGlzdCIsIm51bWJlciJdLCJ0eXBlIjoic3RyaW5nIn1dXQ==",
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_primary_ip": {
+      "block": {
+        "attributes": [
+          {
+            "name": "assignee_id",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "assignee_type",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "auto_delete",
+            "type": "ImJvb2wi",
+            "computed": true
+          },
+          {
+            "name": "datacenter",
+            "type": "InN0cmluZyI=",
+            "computed": true,
+            "deprecated": true
+          },
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "ip_address",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "ip_network",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "computed": true
+          },
+          {
+            "name": "location",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_primary_ips": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "primary_ips",
+            "type": "WyJsaXN0IixbIm9iamVjdCIseyJhc3NpZ25lZV9pZCI6Im51bWJlciIsImFzc2lnbmVlX3R5cGUiOiJzdHJpbmciLCJhdXRvX2RlbGV0ZSI6ImJvb2wiLCJkYXRhY2VudGVyIjoic3RyaW5nIiwiZGVsZXRlX3Byb3RlY3Rpb24iOiJib29sIiwiaWQiOiJudW1iZXIiLCJpcF9hZGRyZXNzIjoic3RyaW5nIiwiaXBfbmV0d29yayI6InN0cmluZyIsImxhYmVscyI6WyJtYXAiLCJzdHJpbmciXSwibG9jYXRpb24iOiJzdHJpbmciLCJuYW1lIjoic3RyaW5nIiwidHlwZSI6InN0cmluZyJ9XV0=",
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_server": {
+      "block": {
+        "attributes": [
+          {
+            "name": "backup_window",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "backups",
+            "type": "ImJvb2wi",
+            "computed": true
+          },
+          {
+            "name": "datacenter",
+            "type": "InN0cmluZyI=",
+            "computed": true,
+            "deprecated": true
+          },
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "computed": true
+          },
+          {
+            "name": "firewall_ids",
+            "type": "WyJsaXN0IiwibnVtYmVyIl0=",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "image",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "ipv4_address",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "ipv6_address",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "ipv6_network",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "iso",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "computed": true
+          },
+          {
+            "name": "location",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "placement_group_id",
+            "type": "Im51bWJlciI=",
+            "optional": true
+          },
+          {
+            "name": "primary_disk_size",
+            "type": "Im51bWJlciI=",
+            "computed": true
+          },
+          {
+            "name": "rebuild_protection",
+            "type": "ImJvb2wi",
+            "computed": true
+          },
+          {
+            "name": "rescue",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "selector",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "deprecated": true
+          },
+          {
+            "name": "server_type",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "status",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "with_status",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "optional": true
+          }
+        ],
+        "blockTypes": [
+          {
+            "typeName": "network",
+            "block": {
+              "attributes": [
+                {
+                  "name": "alias_ips",
+                  "type": "WyJzZXQiLCJzdHJpbmciXQ==",
+                  "computed": true
+                },
+                {
+                  "name": "ip",
+                  "type": "InN0cmluZyI=",
+                  "computed": true
+                },
+                {
+                  "name": "mac_address",
+                  "type": "InN0cmluZyI=",
+                  "computed": true
+                },
+                {
+                  "name": "network_id",
+                  "type": "Im51bWJlciI=",
+                  "computed": true
+                }
+              ]
+            },
+            "nesting": "SET"
+          }
+        ]
+      }
+    },
+    "hcloud_server_type": {
+      "block": {
+        "attributes": [
+          {
+            "name": "architecture",
+            "type": "InN0cmluZyI=",
+            "description": "Architecture of the cpu for a Server of this type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "category",
+            "type": "InN0cmluZyI=",
+            "description": "Category of the Server Type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "cores",
+            "type": "Im51bWJlciI=",
+            "description": "Number of cpu cores for a Server of this type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "cpu_type",
+            "type": "InN0cmluZyI=",
+            "description": "Type of cpu for a Server of this type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "deprecation_announced",
+            "type": "InN0cmluZyI=",
+            "description": "Date of the Server Type deprecation announcement.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN",
+            "deprecated": true
+          },
+          {
+            "name": "description",
+            "type": "InN0cmluZyI=",
+            "description": "Description of the Server Type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "disk",
+            "type": "Im51bWJlciI=",
+            "description": "Disk size in GB for a Server of this type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Server Type.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "included_traffic",
+            "type": "Im51bWJlciI=",
+            "computed": true,
+            "deprecated": true
+          },
+          {
+            "name": "is_deprecated",
+            "type": "ImJvb2wi",
+            "description": "Whether the Server Type is deprecated.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN",
+            "deprecated": true
+          },
+          {
+            "name": "locations",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "deprecation_announced",
+                  "type": "InN0cmluZyI=",
+                  "description": "Date of the Server Type deprecation announcement.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "id",
+                  "type": "Im51bWJlciI=",
+                  "description": "ID of the Location.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "is_deprecated",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the Server Type is deprecated.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "name",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the Location.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "unavailable_after",
+                  "type": "InN0cmluZyI=",
+                  "description": "Date of the Server Type removal. After this date, the Server Type cannot be used anymore.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "LIST"
+            },
+            "description": "List of supported Locations for this Server Type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "memory",
+            "type": "Im51bWJlciI=",
+            "description": "Memory in GB for a Server of this type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Server Type.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "storage_type",
+            "type": "InN0cmluZyI=",
+            "description": "Type of boot drive for a Server of this type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "unavailable_after",
+            "type": "InN0cmluZyI=",
+            "description": "Date of the Server Type removal. After this date, the Server Type cannot be used anymore.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN",
+            "deprecated": true
+          }
+        ],
+        "description": "\nProvides details about a specific Hetzner Cloud Server Type.\n\nUse this resource to get detailed information about specific Server Type.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_server_types": {
+      "block": {
+        "attributes": [
+          {
+            "name": "descriptions",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "computed": true,
+            "deprecated": true
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "names",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "computed": true,
+            "deprecated": true
+          },
+          {
+            "name": "server_type_ids",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "computed": true,
+            "deprecated": true
+          },
+          {
+            "name": "server_types",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "architecture",
+                  "type": "InN0cmluZyI=",
+                  "description": "Architecture of the cpu for a Server of this type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "category",
+                  "type": "InN0cmluZyI=",
+                  "description": "Category of the Server Type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "cores",
+                  "type": "Im51bWJlciI=",
+                  "description": "Number of cpu cores for a Server of this type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "cpu_type",
+                  "type": "InN0cmluZyI=",
+                  "description": "Type of cpu for a Server of this type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "deprecation_announced",
+                  "type": "InN0cmluZyI=",
+                  "description": "Date of the Server Type deprecation announcement.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN",
+                  "deprecated": true
+                },
+                {
+                  "name": "description",
+                  "type": "InN0cmluZyI=",
+                  "description": "Description of the Server Type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "disk",
+                  "type": "Im51bWJlciI=",
+                  "description": "Disk size in GB for a Server of this type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "id",
+                  "type": "Im51bWJlciI=",
+                  "description": "ID of the Server Type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "included_traffic",
+                  "type": "Im51bWJlciI=",
+                  "computed": true,
+                  "deprecated": true
+                },
+                {
+                  "name": "is_deprecated",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the Server Type is deprecated.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN",
+                  "deprecated": true
+                },
+                {
+                  "name": "locations",
+                  "nestedType": {
+                    "attributes": [
+                      {
+                        "name": "deprecation_announced",
+                        "type": "InN0cmluZyI=",
+                        "description": "Date of the Server Type deprecation announcement.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "id",
+                        "type": "Im51bWJlciI=",
+                        "description": "ID of the Location.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "is_deprecated",
+                        "type": "ImJvb2wi",
+                        "description": "Whether the Server Type is deprecated.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "name",
+                        "type": "InN0cmluZyI=",
+                        "description": "Name of the Location.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "unavailable_after",
+                        "type": "InN0cmluZyI=",
+                        "description": "Date of the Server Type removal. After this date, the Server Type cannot be used anymore.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      }
+                    ],
+                    "nesting": "LIST"
+                  },
+                  "description": "List of supported Locations for this Server Type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "memory",
+                  "type": "Im51bWJlciI=",
+                  "description": "Memory in GB for a Server of this type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "name",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the Server Type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "storage_type",
+                  "type": "InN0cmluZyI=",
+                  "description": "Type of boot drive for a Server of this type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "unavailable_after",
+                  "type": "InN0cmluZyI=",
+                  "description": "Date of the Server Type removal. After this date, the Server Type cannot be used anymore.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN",
+                  "deprecated": true
+                }
+              ],
+              "nesting": "LIST"
+            },
+            "computed": true
+          }
+        ],
+        "description": "\nProvides a list of available Hetzner Cloud Server Types.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_servers": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "servers",
+            "type": "WyJsaXN0IixbIm9iamVjdCIseyJiYWNrdXBfd2luZG93Ijoic3RyaW5nIiwiYmFja3VwcyI6ImJvb2wiLCJkYXRhY2VudGVyIjoic3RyaW5nIiwiZGVsZXRlX3Byb3RlY3Rpb24iOiJib29sIiwiZmlyZXdhbGxfaWRzIjpbImxpc3QiLCJudW1iZXIiXSwiaWQiOiJudW1iZXIiLCJpbWFnZSI6InN0cmluZyIsImlwdjRfYWRkcmVzcyI6InN0cmluZyIsImlwdjZfYWRkcmVzcyI6InN0cmluZyIsImlwdjZfbmV0d29yayI6InN0cmluZyIsImlzbyI6InN0cmluZyIsImxhYmVscyI6WyJtYXAiLCJzdHJpbmciXSwibG9jYXRpb24iOiJzdHJpbmciLCJuYW1lIjoic3RyaW5nIiwibmV0d29yayI6WyJzZXQiLFsib2JqZWN0Iix7ImFsaWFzX2lwcyI6WyJzZXQiLCJzdHJpbmciXSwiaXAiOiJzdHJpbmciLCJtYWNfYWRkcmVzcyI6InN0cmluZyIsIm5ldHdvcmtfaWQiOiJudW1iZXIifV1dLCJwbGFjZW1lbnRfZ3JvdXBfaWQiOiJudW1iZXIiLCJwcmltYXJ5X2Rpc2tfc2l6ZSI6Im51bWJlciIsInJlYnVpbGRfcHJvdGVjdGlvbiI6ImJvb2wiLCJyZXNjdWUiOiJzdHJpbmciLCJzZXJ2ZXJfdHlwZSI6InN0cmluZyIsInN0YXR1cyI6InN0cmluZyJ9XV0=",
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "with_status",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_ssh_key": {
+      "block": {
+        "attributes": [
+          {
+            "name": "fingerprint",
+            "type": "InN0cmluZyI=",
+            "description": "Fingerprint of the SSH Key.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the SSH Key.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the SSH Key.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "public_key",
+            "type": "InN0cmluZyI=",
+            "description": "Public key of the SSH Key pair.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "selector",
+            "type": "InN0cmluZyI=",
+            "description": "Filter results using a [Label Selector](https://docs.hetzner.cloud/reference/cloud#label-selector).",
+            "optional": true,
+            "descriptionKind": "MARKDOWN",
+            "deprecated": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "description": "Filter results using a [Label Selector](https://docs.hetzner.cloud/reference/cloud#label-selector).",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides details about a specific Hetzner Cloud SSH Key.\n\nThis resource is useful if you want to use a non-terraform managed SSH Key.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_ssh_keys": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "ssh_keys",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "fingerprint",
+                  "type": "InN0cmluZyI=",
+                  "description": "Fingerprint of the SSH Key.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "id",
+                  "type": "Im51bWJlciI=",
+                  "description": "ID of the SSH Key.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "labels",
+                  "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+                  "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "name",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the SSH Key.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "public_key",
+                  "type": "InN0cmluZyI=",
+                  "description": "Public key of the SSH Key pair.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "LIST"
+            },
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "description": "Filter results using a [Label Selector](https://docs.hetzner.cloud/reference/cloud#label-selector)",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides a list of Hetzner Cloud SSH Keys.\n\nThis resource is useful if you want to use a non-terraform managed SSH Key.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_storage_box": {
+      "block": {
+        "attributes": [
+          {
+            "name": "access_settings",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "reachable_externally",
+                  "type": "ImJvb2wi",
+                  "description": "Whether access from outside the Hetzner network is allowed.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "samba_enabled",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the Samba subsystem is enabled.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "ssh_enabled",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the SSH subsystem is enabled.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "webdav_enabled",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the WebDAV subsystem is enabled.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "zfs_enabled",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the ZFS snapshot folder is visible.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "SINGLE"
+            },
+            "description": "Access settings of the Storage Box.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "description": "Whether delete protection is enabled.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Storage Box.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "location",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Location.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Storage Box.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "server",
+            "type": "InN0cmluZyI=",
+            "description": "FQDN of the Storage Box.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "snapshot_plan",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "day_of_month",
+                  "type": "Im51bWJlciI=",
+                  "description": "Day of the month when the Snapshot Plan is executed. Null means every day.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "day_of_week",
+                  "type": "Im51bWJlciI=",
+                  "description": "Day of the week when the Snapshot Plan is executed. Starts at 0 for Sunday til 6 for Saturday. Note that this differs from the API, which uses 1 (Monday) through 7 (Sunday). Null means every day.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "hour",
+                  "type": "Im51bWJlciI=",
+                  "description": "Hour when the Snapshot Plan is executed (UTC).",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "max_snapshots",
+                  "type": "Im51bWJlciI=",
+                  "description": "Maximum amount of Snapshots that will be created by this Snapshot Plan. Older Snapshots will be deleted.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "minute",
+                  "type": "Im51bWJlciI=",
+                  "description": "Minute when the Snapshot Plan is executed (UTC).",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "SINGLE"
+            },
+            "description": "Details of the active snapshot plan.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "storage_box_type",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Storage Box Type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "system",
+            "type": "InN0cmluZyI=",
+            "description": "Host system of the Storage Box.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "username",
+            "type": "InN0cmluZyI=",
+            "description": "Primary username of the Storage Box.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "description": "Filter results using a [Label Selector](https://docs.hetzner.cloud/reference/hetzner#label-selector).",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides details about a Hetzner Storage Box.\n\nSee the [Storage Boxes API documentation](https://docs.hetzner.cloud/reference/hetzner#storage-boxes) for more details.\n\n**Experimental:** Storage Box support is experimental, breaking changes may occur within minor releases.\nSee https://github.com/hetznercloud/terraform-provider-hcloud/issues/1285 for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_storage_box_snapshot": {
+      "block": {
+        "attributes": [
+          {
+            "name": "description",
+            "type": "InN0cmluZyI=",
+            "description": "Description of the Storage Box Snapshot.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Storage Box Snapshot.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "is_automatic",
+            "type": "ImJvb2wi",
+            "description": "Whether the Storage Box Snapshot was created automatically.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Storage Box Snapshot.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "stats",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "size",
+                  "type": "Im51bWJlciI=",
+                  "description": "Current storage requirements of the Snapshot in bytes.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "size_filesystem",
+                  "type": "Im51bWJlciI=",
+                  "description": "Size of the compressed file system contained in the Snapshot in bytes.\n",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "SINGLE"
+            },
+            "description": "Statistics of the Storage Box Snapshot.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "storage_box_id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Storage Box.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "description": "Filter results using a [Label Selector](https://docs.hetzner.cloud/reference/hetzner#label-selector).",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides details about a Hetzner Storage Box Snapshot.\n\nSee the [Storage Box Snapshots API documentation](https://docs.hetzner.cloud/reference/hetzner#storage-box-snapshots) for more details.\n\n**Experimental:** Storage Box support is experimental, breaking changes may occur within minor releases.\nSee https://github.com/hetznercloud/terraform-provider-hcloud/issues/1285 for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_storage_box_snapshots": {
+      "block": {
+        "attributes": [
+          {
+            "name": "snapshots",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "description",
+                  "type": "InN0cmluZyI=",
+                  "description": "Description of the Storage Box Snapshot.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "id",
+                  "type": "Im51bWJlciI=",
+                  "description": "ID of the Storage Box Snapshot.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "is_automatic",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the Storage Box Snapshot was created automatically.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "labels",
+                  "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+                  "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "name",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the Storage Box Snapshot.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "stats",
+                  "nestedType": {
+                    "attributes": [
+                      {
+                        "name": "size",
+                        "type": "Im51bWJlciI=",
+                        "description": "Current storage requirements of the Snapshot in bytes.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "size_filesystem",
+                        "type": "Im51bWJlciI=",
+                        "description": "Size of the compressed file system contained in the Snapshot in bytes.\n",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      }
+                    ],
+                    "nesting": "SINGLE"
+                  },
+                  "description": "Statistics of the Storage Box Snapshot.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "storage_box_id",
+                  "type": "Im51bWJlciI=",
+                  "description": "ID of the Storage Box.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "LIST"
+            },
+            "computed": true
+          },
+          {
+            "name": "storage_box_id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Storage Box.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "description": "Filter results using a [Label Selector](https://docs.hetzner.cloud/reference/cloud#label-selector)",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides a list of Hetzner Storage Box Snapshots.\n\nSee the [Storage Box Snapshots API documentation](https://docs.hetzner.cloud/reference/hetzner#storage-box-snapshots) for more details.\n\n**Experimental:** Storage Box support is experimental, breaking changes may occur within minor releases.\nSee https://github.com/hetznercloud/terraform-provider-hcloud/issues/1285 for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_storage_box_subaccount": {
+      "block": {
+        "attributes": [
+          {
+            "name": "access_settings",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "reachable_externally",
+                  "type": "ImJvb2wi",
+                  "description": "Whether access from outside the Hetzner network is allowed.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "readonly",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the Subaccount is read-only.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "samba_enabled",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the Samba subsystem is enabled.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "ssh_enabled",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the SSH subsystem is enabled.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "webdav_enabled",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the WebDAV subsystem is enabled.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "SINGLE"
+            },
+            "description": "Access settings for the Subaccount.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "description",
+            "type": "InN0cmluZyI=",
+            "description": "Description of the Storage Box Subaccount.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "home_directory",
+            "type": "InN0cmluZyI=",
+            "description": "Home directory of the Storage Box Subaccount.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Storage Box Subaccount.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Storage Box Subaccount.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "server",
+            "type": "InN0cmluZyI=",
+            "description": "FQDN of the Storage Box Subaccount.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "storage_box_id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Storage Box.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "username",
+            "type": "InN0cmluZyI=",
+            "description": "Username of the Storage Box Subaccount.",
+            "optional": true,
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "description": "Filter results using a [Label Selector](https://docs.hetzner.cloud/reference/hetzner#label-selector).",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides details about a Hetzner Storage Box Subaccount.\n\nSee the [Storage Box Subaccounts API documentation](https://docs.hetzner.cloud/reference/hetzner#storage-box-subaccounts) for more details.\n\n**Experimental:** Storage Box support is experimental, breaking changes may occur within minor releases.\nSee https://github.com/hetznercloud/terraform-provider-hcloud/issues/1285 for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_storage_box_subaccounts": {
+      "block": {
+        "attributes": [
+          {
+            "name": "storage_box_id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Storage Box.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "subaccounts",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "access_settings",
+                  "nestedType": {
+                    "attributes": [
+                      {
+                        "name": "reachable_externally",
+                        "type": "ImJvb2wi",
+                        "description": "Whether access from outside the Hetzner network is allowed.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "readonly",
+                        "type": "ImJvb2wi",
+                        "description": "Whether the Subaccount is read-only.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "samba_enabled",
+                        "type": "ImJvb2wi",
+                        "description": "Whether the Samba subsystem is enabled.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "ssh_enabled",
+                        "type": "ImJvb2wi",
+                        "description": "Whether the SSH subsystem is enabled.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "webdav_enabled",
+                        "type": "ImJvb2wi",
+                        "description": "Whether the WebDAV subsystem is enabled.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      }
+                    ],
+                    "nesting": "SINGLE"
+                  },
+                  "description": "Access settings for the Subaccount.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "description",
+                  "type": "InN0cmluZyI=",
+                  "description": "Description of the Storage Box Subaccount.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "home_directory",
+                  "type": "InN0cmluZyI=",
+                  "description": "Home directory of the Storage Box Subaccount.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "id",
+                  "type": "Im51bWJlciI=",
+                  "description": "ID of the Storage Box Subaccount.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "labels",
+                  "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+                  "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "name",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the Storage Box Subaccount.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "server",
+                  "type": "InN0cmluZyI=",
+                  "description": "FQDN of the Storage Box Subaccount.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "storage_box_id",
+                  "type": "Im51bWJlciI=",
+                  "description": "ID of the Storage Box.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "username",
+                  "type": "InN0cmluZyI=",
+                  "description": "Username of the Storage Box Subaccount.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "LIST"
+            },
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "description": "Filter results using a [Label Selector](https://docs.hetzner.cloud/reference/cloud#label-selector)",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides a list of Hetzner Storage Box Subaccounts.\n\nSee the [Storage Box Subaccounts API documentation](https://docs.hetzner.cloud/reference/hetzner#storage-box-subaccounts) for more details.\n\n**Experimental:** Storage Box support is experimental, breaking changes may occur within minor releases.\nSee https://github.com/hetznercloud/terraform-provider-hcloud/issues/1285 for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_storage_box_type": {
+      "block": {
+        "attributes": [
+          {
+            "name": "automatic_snapshot_limit",
+            "type": "Im51bWJlciI=",
+            "description": "Maximum number of snapshots created automatically by a snapshot plan.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "deprecation_announced",
+            "type": "InN0cmluZyI=",
+            "description": "Date of the Storage Box Type deprecation announcement.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "description",
+            "type": "InN0cmluZyI=",
+            "description": "Description of the Storage Box Type.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Storage Box Type.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "is_deprecated",
+            "type": "ImJvb2wi",
+            "description": "Whether the Storage Box Type is deprecated.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Storage Box Type.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "size",
+            "type": "Im51bWJlciI=",
+            "description": "Available storage in bytes.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "snapshot_limit",
+            "type": "Im51bWJlciI=",
+            "description": "Maximum number of allowed manual snapshots.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "subaccounts_limit",
+            "type": "Im51bWJlciI=",
+            "description": "Maximum number of subaccounts.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "unavailable_after",
+            "type": "InN0cmluZyI=",
+            "description": "Date of the Storage Box Type removal. After this date, the Storage Box Type cannot be used anymore.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides details about a Hetzner Storage Box Type.\n\nSee the [Storage Box Type API documentation](https://docs.hetzner.cloud/reference/hetzner#storage-box-types) for more details.\n\n**Experimental:** Storage Box support is experimental, breaking changes may occur within minor releases.\nSee https://github.com/hetznercloud/terraform-provider-hcloud/issues/1285 for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_storage_box_types": {
+      "block": {
+        "attributes": [
+          {
+            "name": "storage_box_types",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "automatic_snapshot_limit",
+                  "type": "Im51bWJlciI=",
+                  "description": "Maximum number of snapshots created automatically by a snapshot plan.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "deprecation_announced",
+                  "type": "InN0cmluZyI=",
+                  "description": "Date of the Storage Box Type deprecation announcement.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "description",
+                  "type": "InN0cmluZyI=",
+                  "description": "Description of the Storage Box Type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "id",
+                  "type": "Im51bWJlciI=",
+                  "description": "ID of the Storage Box Type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "is_deprecated",
+                  "type": "ImJvb2wi",
+                  "description": "Whether the Storage Box Type is deprecated.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "name",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the Storage Box Type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "size",
+                  "type": "Im51bWJlciI=",
+                  "description": "Available storage in bytes.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "snapshot_limit",
+                  "type": "Im51bWJlciI=",
+                  "description": "Maximum number of allowed manual snapshots.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "subaccounts_limit",
+                  "type": "Im51bWJlciI=",
+                  "description": "Maximum number of subaccounts.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "unavailable_after",
+                  "type": "InN0cmluZyI=",
+                  "description": "Date of the Storage Box Type removal. After this date, the Storage Box Type cannot be used anymore.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "LIST"
+            },
+            "computed": true
+          }
+        ],
+        "description": "\nProvides a list of Hetzner Storage Box Types.\n\nSee the [Storage Box Type API documentation](https://docs.hetzner.cloud/reference/hetzner#storage-box-types) for more details.\n\n**Experimental:** Storage Box support is experimental, breaking changes may occur within minor releases.\nSee https://github.com/hetznercloud/terraform-provider-hcloud/issues/1285 for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_storage_boxes": {
+      "block": {
+        "attributes": [
+          {
+            "name": "storage_boxes",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "access_settings",
+                  "nestedType": {
+                    "attributes": [
+                      {
+                        "name": "reachable_externally",
+                        "type": "ImJvb2wi",
+                        "description": "Whether access from outside the Hetzner network is allowed.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "samba_enabled",
+                        "type": "ImJvb2wi",
+                        "description": "Whether the Samba subsystem is enabled.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "ssh_enabled",
+                        "type": "ImJvb2wi",
+                        "description": "Whether the SSH subsystem is enabled.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "webdav_enabled",
+                        "type": "ImJvb2wi",
+                        "description": "Whether the WebDAV subsystem is enabled.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "zfs_enabled",
+                        "type": "ImJvb2wi",
+                        "description": "Whether the ZFS snapshot folder is visible.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      }
+                    ],
+                    "nesting": "SINGLE"
+                  },
+                  "description": "Access settings of the Storage Box.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "delete_protection",
+                  "type": "ImJvb2wi",
+                  "description": "Whether delete protection is enabled.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "id",
+                  "type": "Im51bWJlciI=",
+                  "description": "ID of the Storage Box.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "labels",
+                  "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+                  "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "location",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the Location.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "name",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the Storage Box.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "server",
+                  "type": "InN0cmluZyI=",
+                  "description": "FQDN of the Storage Box.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "snapshot_plan",
+                  "nestedType": {
+                    "attributes": [
+                      {
+                        "name": "day_of_month",
+                        "type": "Im51bWJlciI=",
+                        "description": "Day of the month when the Snapshot Plan is executed. Null means every day.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "day_of_week",
+                        "type": "Im51bWJlciI=",
+                        "description": "Day of the week when the Snapshot Plan is executed. Starts at 0 for Sunday til 6 for Saturday. Note that this differs from the API, which uses 1 (Monday) through 7 (Sunday). Null means every day.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "hour",
+                        "type": "Im51bWJlciI=",
+                        "description": "Hour when the Snapshot Plan is executed (UTC).",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "max_snapshots",
+                        "type": "Im51bWJlciI=",
+                        "description": "Maximum amount of Snapshots that will be created by this Snapshot Plan. Older Snapshots will be deleted.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "minute",
+                        "type": "Im51bWJlciI=",
+                        "description": "Minute when the Snapshot Plan is executed (UTC).",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      }
+                    ],
+                    "nesting": "SINGLE"
+                  },
+                  "description": "Details of the active snapshot plan.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "storage_box_type",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the Storage Box Type.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "system",
+                  "type": "InN0cmluZyI=",
+                  "description": "Host system of the Storage Box.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "username",
+                  "type": "InN0cmluZyI=",
+                  "description": "Primary username of the Storage Box.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "LIST"
+            },
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "description": "Filter results using a [Label Selector](https://docs.hetzner.cloud/reference/cloud#label-selector)",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides a list of Hetzner Storage Boxes.\n\nSee the [Storage Boxes API documentation](https://docs.hetzner.cloud/reference/hetzner#storage-boxes) for more details.\n\n**Experimental:** Storage Box support is experimental, breaking changes may occur within minor releases.\nSee https://github.com/hetznercloud/terraform-provider-hcloud/issues/1285 for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_volume": {
+      "block": {
+        "attributes": [
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "computed": true
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "computed": true
+          },
+          {
+            "name": "linux_device",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "location",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "selector",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "deprecated": true
+          },
+          {
+            "name": "server_id",
+            "type": "Im51bWJlciI=",
+            "optional": true
+          },
+          {
+            "name": "size",
+            "type": "Im51bWJlciI=",
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "with_status",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_volumes": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "optional": true,
+            "computed": true
+          },
+          {
+            "name": "volumes",
+            "type": "WyJsaXN0IixbIm9iamVjdCIseyJkZWxldGVfcHJvdGVjdGlvbiI6ImJvb2wiLCJpZCI6Im51bWJlciIsImxhYmVscyI6WyJtYXAiLCJzdHJpbmciXSwibGludXhfZGV2aWNlIjoic3RyaW5nIiwibG9jYXRpb24iOiJzdHJpbmciLCJuYW1lIjoic3RyaW5nIiwic2VydmVyX2lkIjoibnVtYmVyIiwic2l6ZSI6Im51bWJlciJ9XV0=",
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "optional": true
+          },
+          {
+            "name": "with_status",
+            "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+            "optional": true
+          }
+        ]
+      }
+    },
+    "hcloud_zone": {
+      "block": {
+        "attributes": [
+          {
+            "name": "authoritative_nameservers",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "assigned",
+                  "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+                  "description": "Authoritative Hetzner nameservers assigned to the Zone.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "SINGLE"
+            },
+            "description": "Authoritative nameservers of the Zone.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "delete_protection",
+            "type": "ImJvb2wi",
+            "description": "Whether delete protection is enabled.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "Im51bWJlciI=",
+            "description": "ID of the Zone.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "mode",
+            "type": "InN0cmluZyI=",
+            "description": "Mode of the Zone.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Zone.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "primary_nameservers",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "address",
+                  "type": "InN0cmluZyI=",
+                  "description": "Public IPv4 or IPv6 address of the primary nameserver.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "port",
+                  "type": "Im51bWJlciI=",
+                  "description": "Port of the primary nameserver.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "tsig_algorithm",
+                  "type": "InN0cmluZyI=",
+                  "description": "Transaction signature (TSIG) algorithm used to generate the TSIG key.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "tsig_key",
+                  "type": "InN0cmluZyI=",
+                  "description": "Transaction signature (TSIG) key",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "LIST"
+            },
+            "description": "Primary nameservers of the Zone.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "registrar",
+            "type": "InN0cmluZyI=",
+            "description": "Registrar of the Zone.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "ttl",
+            "type": "Im51bWJlciI=",
+            "description": "Default Time To Live (TTL) of the Zone.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "description": "Filter results using a [Label Selector](https://docs.hetzner.cloud/reference/cloud#label-selector).",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides details about a Hetzner Cloud Zone.\n\nFor Internationalized domain names (IDN), see the `provider::hcloud::idna` function.\n\nSee the [Zones API documentation](https://docs.hetzner.cloud/reference/cloud#zones) for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_zone_rrset": {
+      "block": {
+        "attributes": [
+          {
+            "name": "change_protection",
+            "type": "ImJvb2wi",
+            "description": "Whether change protection is enabled.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "description": "ID of the Zone RRSet.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "labels",
+            "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+            "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "name",
+            "type": "InN0cmluZyI=",
+            "description": "Name of the Zone RRSet.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "records",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "comment",
+                  "type": "InN0cmluZyI=",
+                  "description": "Comment of the record.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "value",
+                  "type": "InN0cmluZyI=",
+                  "description": "Value of the record.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "SET"
+            },
+            "description": "Records of the Zone RRSet.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "ttl",
+            "type": "Im51bWJlciI=",
+            "description": "Time To Live (TTL) of the Zone RRSet.",
+            "computed": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "type",
+            "type": "InN0cmluZyI=",
+            "description": "Type of the Zone RRSet.",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "description": "Filter results using a [Label Selector](https://docs.hetzner.cloud/reference/cloud#label-selector).",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "zone",
+            "type": "InN0cmluZyI=",
+            "description": "ID or Name of the parent Zone.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides details about a Hetzner Cloud Zone Resource Record Set (RRSet).\n\nSee the [Zone RRSets API documentation](https://docs.hetzner.cloud/reference/cloud#zone-rrsets) for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_zone_rrsets": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "rrsets",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "change_protection",
+                  "type": "ImJvb2wi",
+                  "description": "Whether change protection is enabled.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "id",
+                  "type": "InN0cmluZyI=",
+                  "description": "ID of the Zone RRSet.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "labels",
+                  "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+                  "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "name",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the Zone RRSet.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "records",
+                  "nestedType": {
+                    "attributes": [
+                      {
+                        "name": "comment",
+                        "type": "InN0cmluZyI=",
+                        "description": "Comment of the record.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "value",
+                        "type": "InN0cmluZyI=",
+                        "description": "Value of the record.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      }
+                    ],
+                    "nesting": "SET"
+                  },
+                  "description": "Records of the Zone RRSet.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "ttl",
+                  "type": "Im51bWJlciI=",
+                  "description": "Time To Live (TTL) of the Zone RRSet.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "type",
+                  "type": "InN0cmluZyI=",
+                  "description": "Type of the Zone RRSet.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "zone",
+                  "type": "InN0cmluZyI=",
+                  "description": "ID or Name of the parent Zone.",
+                  "optional": true,
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "LIST"
+            },
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "description": "Filter results using a [Label Selector](https://docs.hetzner.cloud/reference/cloud#label-selector)",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "zone",
+            "type": "InN0cmluZyI=",
+            "description": "ID or Name of the parent Zone.",
+            "required": true,
+            "descriptionKind": "MARKDOWN"
+          }
+        ],
+        "description": "\nProvides a list of Hetzner Cloud Zone Resource Record Set (RRSet).\n\nSee the [Zone RRSets API documentation](https://docs.hetzner.cloud/reference/cloud#zone-rrsets) for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    },
+    "hcloud_zones": {
+      "block": {
+        "attributes": [
+          {
+            "name": "id",
+            "type": "InN0cmluZyI=",
+            "computed": true
+          },
+          {
+            "name": "with_selector",
+            "type": "InN0cmluZyI=",
+            "description": "Filter results using a [Label Selector](https://docs.hetzner.cloud/reference/cloud#label-selector)",
+            "optional": true,
+            "descriptionKind": "MARKDOWN"
+          },
+          {
+            "name": "zones",
+            "nestedType": {
+              "attributes": [
+                {
+                  "name": "authoritative_nameservers",
+                  "nestedType": {
+                    "attributes": [
+                      {
+                        "name": "assigned",
+                        "type": "WyJsaXN0Iiwic3RyaW5nIl0=",
+                        "description": "Authoritative Hetzner nameservers assigned to the Zone.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      }
+                    ],
+                    "nesting": "SINGLE"
+                  },
+                  "description": "Authoritative nameservers of the Zone.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "delete_protection",
+                  "type": "ImJvb2wi",
+                  "description": "Whether delete protection is enabled.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "id",
+                  "type": "Im51bWJlciI=",
+                  "description": "ID of the Zone.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "labels",
+                  "type": "WyJtYXAiLCJzdHJpbmciXQ==",
+                  "description": "User-defined [labels](https://docs.hetzner.cloud/reference/cloud#labels) (key-value pairs) for the resource.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "mode",
+                  "type": "InN0cmluZyI=",
+                  "description": "Mode of the Zone.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "name",
+                  "type": "InN0cmluZyI=",
+                  "description": "Name of the Zone.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "primary_nameservers",
+                  "nestedType": {
+                    "attributes": [
+                      {
+                        "name": "address",
+                        "type": "InN0cmluZyI=",
+                        "description": "Public IPv4 or IPv6 address of the primary nameserver.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "port",
+                        "type": "Im51bWJlciI=",
+                        "description": "Port of the primary nameserver.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "tsig_algorithm",
+                        "type": "InN0cmluZyI=",
+                        "description": "Transaction signature (TSIG) algorithm used to generate the TSIG key.",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      },
+                      {
+                        "name": "tsig_key",
+                        "type": "InN0cmluZyI=",
+                        "description": "Transaction signature (TSIG) key",
+                        "computed": true,
+                        "descriptionKind": "MARKDOWN"
+                      }
+                    ],
+                    "nesting": "LIST"
+                  },
+                  "description": "Primary nameservers of the Zone.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "registrar",
+                  "type": "InN0cmluZyI=",
+                  "description": "Registrar of the Zone.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                },
+                {
+                  "name": "ttl",
+                  "type": "Im51bWJlciI=",
+                  "description": "Default Time To Live (TTL) of the Zone.",
+                  "computed": true,
+                  "descriptionKind": "MARKDOWN"
+                }
+              ],
+              "nesting": "LIST"
+            },
+            "computed": true
+          }
+        ],
+        "description": "\nProvides a list of Hetzner Cloud Zone.\n\nSee the [Zones API documentation](https://docs.hetzner.cloud/reference/cloud#zones) for more details.\n",
+        "descriptionKind": "MARKDOWN"
+      }
+    }
+  },
+  "functions": {
+    "idna": {
+      "parameters": [
+        {
+          "name": "domain",
+          "type": "InN0cmluZyI=",
+          "description": "Domain to convert."
+        }
+      ],
+      "return": {
+        "type": "InN0cmluZyI="
+      },
+      "summary": "Convert a Internationalized Domain Name (IDN) to ASCII",
+      "description": "\nConverts a Internationalized Domain Name (IDN) to ASCII using Punycode.\n\nThe conversion is defined by Golang's IDNA package. See https://pkg.go.dev/golang.org/x/net/idna\nfor more details.",
+      "descriptionKind": "MARKDOWN"
+    },
+    "txt_record": {
+      "parameters": [
+        {
+          "name": "record",
+          "type": "InN0cmluZyI=",
+          "description": "Record value to format."
+        }
+      ],
+      "return": {
+        "type": "InN0cmluZyI="
+      },
+      "summary": "Format a TXT record",
+      "description": "Format a TXT record by splitting it in quoted strings of 255 characters.",
+      "descriptionKind": "MARKDOWN"
+    }
+  },
+  "providerMeta": {
+    "block": {}
+  },
+  "serverCapabilities": {
+    "planDestroy": true,
+    "getProviderSchemaOptional": true,
+    "moveResourceState": true
+  }
+}

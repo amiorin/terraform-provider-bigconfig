@@ -15,6 +15,7 @@
                  [com.google.protobuf/protobuf-java "4.33.4"]
                  [javax.annotation/javax.annotation-api "1.3.2"]
                  [cheshire "6.1.0"]
+                 [babashka/process "0.6.25"]
 
                  ;; testing
                  [org.wiremock/wiremock-standalone "3.13.2"]
