@@ -1,0 +1,3 @@
+{:tasks {tidy {:doc "tidy clojure files"
+               :task (do (shell "clojure-lsp clean-ns")
+                         (shell "clojure-lsp format"))}}}

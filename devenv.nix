@@ -10,5 +10,6 @@
     pkgs.protobuf
     pkgs.buf
     pkgs.jet
+    pkgs.clj-kondo
   ];
 }

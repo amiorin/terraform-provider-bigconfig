@@ -2,9 +2,11 @@
   (:require
    [babashka.process :as p]
    [cheshire.core :as json]
-   [clojure.java.io :as io])
+   [clojure.java.io :as io]
+   [pronto.core :as pr]
+   [pronto.core :as pr])
   (:import
-   (com.terraform.plugin.v6 ProviderGrpc$ProviderImplBase)
+   (com.terraform.plugin.v6 GetProviderSchema$Response ProviderGrpc$ProviderImplBase ServerCapabilities)
    (io.grpc.netty NettyServerBuilder)
    (io.grpc.netty GrpcSslContexts)
    io.grpc.Status
@@ -59,19 +61,20 @@
                (.asRuntimeException))]
     (.onError observer ex)))
 
+(comment
+  (pr/clj-map->proto-map my-mapper GetProviderSchema$Response {:provider {}}))
+
 (do
+  (pr/defmapper my-mapper [GetProviderSchema$Response ServerCapabilities])
   (defn- create-provider-service []
     (proxy [ProviderGrpc$ProviderImplBase] []
       (getProviderSchema [request observer]
-        (send-error! observer "getProviderSchema")
-        #_(let [response (-> (GetProviderSchema$Response/newBuilder)
-                             (.setProvider (-> (Schema/newBuilder)
-                                               (.setVersion 1)
-                                               (.build)))
-                             (.build))]
-            (doto observer
-              (.onNext response)
-              (.onCompleted))))))
+        #_(send-error! observer "getProviderSchema")
+        (let [response (-> (pr/clj-map->proto-map my-mapper GetProviderSchema$Response {:provider {:block {}}})
+                           pr/proto-map->proto)]
+          (doto observer
+            (.onNext response)
+            (.onCompleted))))))
   (let [socket-file (File. socket-path)]
     (when (.exists socket-file)
       (.delete socket-file)))

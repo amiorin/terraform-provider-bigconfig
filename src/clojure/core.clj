@@ -1,7 +1,7 @@
 (ns core
   (:require
-   [clojure.java.io :as io]
    [cheshire.core :as json]
+   [clojure.java.io :as io]
    [server]))
 
 (defn -main [& args]

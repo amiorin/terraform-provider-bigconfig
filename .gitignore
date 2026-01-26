@@ -1,0 +1,7 @@
+.*
+!.gitignore
+/.clj-kondo/*
+!/.clj-kondo
+!/.clj-kondo/config.edn
+target
+/terraform.tfstate

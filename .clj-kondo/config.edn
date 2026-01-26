@@ -1,0 +1,1 @@
+{:lint-as {pronto.core/defmapper clojure.core/def}}

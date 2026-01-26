@@ -16,6 +16,7 @@
                  [javax.annotation/javax.annotation-api "1.3.2"]
                  [cheshire "6.1.0"]
                  [babashka/process "0.6.25"]
+                 [com.shipclojure/pronto "4.0.0"]
 
                  ;; testing
                  [org.wiremock/wiremock-standalone "3.13.2"]
