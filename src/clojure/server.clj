@@ -5,7 +5,11 @@
    [clojure.java.io :as io]
    [pronto.core :as pr])
   (:import
-   (com.terraform.plugin.v6 GetProviderSchema$Response ProviderGrpc$ProviderImplBase ServerCapabilities)
+   (com.terraform.plugin.v6 ValidateResourceConfig$Request
+                            ValidateResourceConfig$Response
+                            GetProviderSchema$Response
+                            ProviderGrpc$ProviderImplBase
+                            ServerCapabilities)
    (io.grpc.netty NettyServerBuilder)
    (io.grpc.netty GrpcSslContexts)
    io.grpc.Status
@@ -61,15 +65,28 @@
     (.onError observer ex)))
 
 (comment
-  (pr/clj-map->proto-map my-mapper GetProviderSchema$Response {:provider {}}))
+  (do
+    (pr/clj-map->proto-map my-mapper ValidateResourceConfig$Response {:diagnostics [{}]}))
+  (do
+    (def provider-schema {:provider {:block {}}
+                          :resource_schemas {"bigconfig_rama" {:block {}}}})
+    (pr/clj-map->proto-map my-mapper GetProviderSchema$Response provider-schema)))
 
-(pr/defmapper my-mapper [GetProviderSchema$Response ServerCapabilities])
+(pr/defmapper my-mapper [GetProviderSchema$Response
+                         ValidateResourceConfig$Request
+                         ValidateResourceConfig$Response
+                         ServerCapabilities])
 
 (defn- create-provider-service []
   (proxy [ProviderGrpc$ProviderImplBase] []
+    (validateResourceConfig [request observer]
+      (let [response (-> (pr/clj-map->proto-map my-mapper ValidateResourceConfig$Response {})
+                         pr/proto-map->proto)]
+        (doto observer
+          (.onNext response)
+          (.onCompleted))))
     (getProviderSchema [request observer]
-      #_(send-error! observer "getProviderSchema")
-      (let [response (-> (pr/clj-map->proto-map my-mapper GetProviderSchema$Response {:provider {:block {}}})
+      (let [response (-> (pr/clj-map->proto-map my-mapper GetProviderSchema$Response provider-schema)
                          pr/proto-map->proto)]
         (doto observer
           (.onNext response)
@@ -77,12 +94,17 @@
 
 (comment
   (do
-    (pr/defmapper my-mapper [GetProviderSchema$Response ServerCapabilities])
     (defn- create-provider-service []
       (proxy [ProviderGrpc$ProviderImplBase] []
+        (validateResourceConfig [request observer]
+          (let [response (-> (pr/clj-map->proto-map my-mapper ValidateResourceConfig$Response {})
+                             pr/proto-map->proto)]
+            (doto observer
+              (.onNext response)
+              (.onCompleted))))
         (getProviderSchema [request observer]
           #_(send-error! observer "getProviderSchema")
-          (let [response (-> (pr/clj-map->proto-map my-mapper GetProviderSchema$Response {:provider {:block {}}})
+          (let [response (-> (pr/clj-map->proto-map my-mapper GetProviderSchema$Response provider-schema)
                              pr/proto-map->proto)]
             (doto observer
               (.onNext response)
@@ -94,7 +116,7 @@
     (p/shell {:continue true
               :out *out*
               :err *err*
-              :extra-env {"TF_LOG" "ERROR"
+              :extra-env {"TF_LOG" #_"DEBUG" "ERROR"
                           "TF_REATTACH_PROVIDERS" (json/generate-string data)}} "tofu plan")
     (stop-server)))
 
@@ -125,8 +147,7 @@
 (defn stop-server []
   (when-let [s @server]
     (.shutdown s)
-    (reset! server nil)
-    (println "Server stopped.")))
+    (reset! server nil)))
 
 (defn -main [& _]
   (let [socket-file (File. socket-path)]
