@@ -26,5 +26,6 @@
   :target-path "target/%s"
   :source-paths ["src/clojure"]
   :java-source-paths ["gen/java"]
-  :profiles {:uberjar {:aot :all
+  :profiles {:dev {:source-paths ["dev"]}
+             :uberjar {:aot :all
                        :jvm-opts ["-Dclojure.compiler.direct-linking=true"]}})

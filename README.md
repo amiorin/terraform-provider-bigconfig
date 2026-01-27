@@ -66,3 +66,8 @@ buf curl --schema ./proto \
 - https://blog.jmibanez.com/2018/07/22/grpc-with-clojure-and-leiningen.html             
 - https://github.com/aphyr/less-awful-ssl                                               
 
+# Msgpack
+- https://github.com/julienvincent/msgpack-clj
+- https://github.com/edma2/clojure-msgpack
+- https://github.com/rosejn/msgpack-cljc
+- https://github.com/pkcsecurity/msgpack-cljs

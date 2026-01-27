@@ -5,19 +5,30 @@
    [clojure.java.io :as io]
    [pronto.core :as pr])
   (:import
-   (com.terraform.plugin.v6 ValidateResourceConfig$Request
-                            ValidateResourceConfig$Response
-                            GetProviderSchema$Response
-                            ProviderGrpc$ProviderImplBase
-                            ServerCapabilities)
-   (io.grpc.netty NettyServerBuilder)
+   [clojure.lang IDeref]
+   (com.terraform.plugin.v6
+    ConfigureProvider$Request
+    ConfigureProvider$Response
+    GetProviderSchema$Request
+    GetProviderSchema$Response
+    PlanResourceChange$Request
+    PlanResourceChange$Response
+    ProviderGrpc
+    ProviderGrpc$ProviderImplBase
+    ServerCapabilities
+    ValidateProviderConfig$Request
+    ValidateProviderConfig$Response
+    ValidateResourceConfig$Request
+    ValidateResourceConfig$Response)
+   io.grpc.ManagedChannel
+   (io.grpc.netty NettyChannelBuilder NettyServerBuilder)
    (io.grpc.netty GrpcSslContexts)
    io.grpc.Status
    (io.netty.channel.epoll EpollEventLoopGroup EpollServerDomainSocketChannel)
-   (io.netty.channel.kqueue KQueueEventLoopGroup KQueueServerDomainSocketChannel)
+   (io.netty.channel.kqueue KQueueDomainSocketChannel KQueueEventLoopGroup KQueueServerDomainSocketChannel)
    (io.netty.channel.unix DomainSocketAddress)
    (io.netty.handler.ssl ClientAuth)
-   (java.io File)))
+   (java.io Closeable File)))
 
 (declare start-server)
 
@@ -66,19 +77,49 @@
 
 (comment
   (do
-    (pr/clj-map->proto-map my-mapper ValidateResourceConfig$Response {:diagnostics [{}]}))
+    (pr/proto->proto-map my-mapper foo))
+  (do
+    (pr/clj-map->proto-map my-mapper PlanResourceChange$Response {:planned_state {}}))
   (do
     (def provider-schema {:provider {:block {}}
                           :resource_schemas {"bigconfig_rama" {:block {}}}})
     (pr/clj-map->proto-map my-mapper GetProviderSchema$Response provider-schema)))
 
-(pr/defmapper my-mapper [GetProviderSchema$Response
+(pr/defmapper my-mapper [GetProviderSchema$Request
+                         GetProviderSchema$Response
                          ValidateResourceConfig$Request
                          ValidateResourceConfig$Response
+                         ValidateProviderConfig$Request
+                         ValidateProviderConfig$Response
+                         ConfigureProvider$Request
+                         ConfigureProvider$Response
+                         PlanResourceChange$Request
+                         PlanResourceChange$Response
                          ServerCapabilities])
+
+(def provider-schema {:provider {:block {}}
+                      :resource_schemas {"bigconfig_rama" {:block {}}}})
 
 (defn- create-provider-service []
   (proxy [ProviderGrpc$ProviderImplBase] []
+    (planResourceChange [request observer]
+      (let [response (-> (pr/clj-map->proto-map my-mapper PlanResourceChange$Response {})
+                         pr/proto-map->proto)]
+        (doto observer
+          (.onNext response)
+          (.onCompleted))))
+    (configureProvider [request observer]
+      (let [response (-> (pr/clj-map->proto-map my-mapper ConfigureProvider$Response {})
+                         pr/proto-map->proto)]
+        (doto observer
+          (.onNext response)
+          (.onCompleted))))
+    (validateProviderConfig [request observer]
+      (let [response (-> (pr/clj-map->proto-map my-mapper ValidateProviderConfig$Response {})
+                         pr/proto-map->proto)]
+        (doto observer
+          (.onNext response)
+          (.onCompleted))))
     (validateResourceConfig [request observer]
       (let [response (-> (pr/clj-map->proto-map my-mapper ValidateResourceConfig$Response {})
                          pr/proto-map->proto)]
@@ -86,6 +127,7 @@
           (.onNext response)
           (.onCompleted))))
     (getProviderSchema [request observer]
+      #_(send-error! observer "getProviderSchema")
       (let [response (-> (pr/clj-map->proto-map my-mapper GetProviderSchema$Response provider-schema)
                          pr/proto-map->proto)]
         (doto observer
@@ -96,6 +138,24 @@
   (do
     (defn- create-provider-service []
       (proxy [ProviderGrpc$ProviderImplBase] []
+        (planResourceChange [request observer]
+          (let [response (-> (pr/clj-map->proto-map my-mapper PlanResourceChange$Response {})
+                             pr/proto-map->proto)]
+            (doto observer
+              (.onNext response)
+              (.onCompleted))))
+        (configureProvider [request observer]
+          (let [response (-> (pr/clj-map->proto-map my-mapper ConfigureProvider$Response {})
+                             pr/proto-map->proto)]
+            (doto observer
+              (.onNext response)
+              (.onCompleted))))
+        (validateProviderConfig [request observer]
+          (let [response (-> (pr/clj-map->proto-map my-mapper ValidateProviderConfig$Response {})
+                             pr/proto-map->proto)]
+            (doto observer
+              (.onNext response)
+              (.onCompleted))))
         (validateResourceConfig [request observer]
           (let [response (-> (pr/clj-map->proto-map my-mapper ValidateResourceConfig$Response {})
                              pr/proto-map->proto)]
@@ -155,3 +215,43 @@
       (.delete socket-file)))
   (.addShutdownHook (Runtime/getRuntime) (Thread. stop-server))
   (start-server))
+
+(defn call-grpc
+  [grpc-channel]
+  (let [stub (ProviderGrpc/newBlockingStub grpc-channel)
+        request (-> (pr/clj-map->proto-map my-mapper GetProviderSchema$Request {})
+                    pr/proto-map->proto)]
+    (println "Calling hello RPC")
+    ;; Execute gRPC
+    (.getProviderSchema stub request)))
+
+(defn closeable
+  ([value] (closeable value identity))
+  ([value close] (reify
+                   IDeref
+                   (deref [_] value)
+                   Closeable
+                   (close [_] (close value)))))
+
+(defn create-grpc-channel
+  [socket-path]
+  (let [socket-file (File. socket-path)
+        os (get-os)
+        channel (case os
+                  :osx (-> (NettyChannelBuilder/forAddress (DomainSocketAddress. socket-file))
+                           (.channelType KQueueDomainSocketChannel)
+                           (.eventLoopGroup (KQueueEventLoopGroup.))
+                           (.usePlaintext)
+                           (.build)))]
+    channel))
+
+(comment
+  (with-open [channel-wrapper (closeable
+                               (create-grpc-channel socket-path)
+                               (fn [^ManagedChannel channel]
+                                 (.shutdown channel)))]
+    (call-grpc @channel-wrapper))
+
+  (future (start-server))
+
+  (stop-server))
