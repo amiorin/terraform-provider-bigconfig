@@ -1,4 +1,5 @@
 {:tasks
  {tidy {:doc "tidy clojure files"
         :task (do (shell "clojure-lsp clean-ns")
-                  (shell "clojure-lsp format"))}}}
+                  (shell "clojure-lsp format"))}
+  hcloud (shell ".bin/terraform-provider-hcloud_v1.59.0 -debug")}}

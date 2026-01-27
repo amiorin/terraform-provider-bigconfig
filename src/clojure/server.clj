@@ -24,6 +24,7 @@
    (io.grpc.netty NettyChannelBuilder NettyServerBuilder)
    (io.grpc.netty GrpcSslContexts)
    io.grpc.Status
+   [io.grpc.stub StreamObserver]
    (io.netty.channel.epoll EpollEventLoopGroup EpollServerDomainSocketChannel)
    (io.netty.channel.kqueue KQueueDomainSocketChannel KQueueEventLoopGroup KQueueServerDomainSocketChannel)
    (io.netty.channel.unix DomainSocketAddress)
@@ -218,12 +219,18 @@
 
 (defn call-grpc
   [grpc-channel]
-  (let [stub (ProviderGrpc/newBlockingStub grpc-channel)
+  (let [stub (ProviderGrpc/newStub grpc-channel)
         request (-> (pr/clj-map->proto-map my-mapper GetProviderSchema$Request {})
                     pr/proto-map->proto)]
     (println "Calling hello RPC")
     ;; Execute gRPC
-    (.getProviderSchema stub request)))
+    (.getProviderSchema stub request
+                        (reify StreamObserver
+                          (onNext [_this value]
+                            (tap> value)
+                            value)
+                          (onError [_this _throwable])
+                          (onCompleted [_this])))))
 
 (defn closeable
   ([value] (closeable value identity))
