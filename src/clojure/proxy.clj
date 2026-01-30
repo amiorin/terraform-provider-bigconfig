@@ -1,34 +1,48 @@
 (ns proxy
   (:import (com.terraform.plugin.v6
             ProviderGrpc
-            ProviderGrpc$ProviderImplBase
-            StopProvider$Response)
+            ProviderGrpc$ProviderImplBase)
            (io.grpc ManagedChannel)))
 
-(defn create-proxy-provider-service [^ManagedChannel real-channel]
+(declare ->provider-proxy)
+
+(defn ->proxy-provider-service [^ManagedChannel real-channel]
   (let [real-provider (ProviderGrpc/newStub real-channel)]
-    (proxy [ProviderGrpc$ProviderImplBase] []
-      (getProviderSchema [this request observer]
-        (.getProviderSchema real-provider request observer))
-      (validateProviderConfig [this request observer]
-        (.validateProviderConfig real-provider request observer))
-      (validateResourceConfig [this request observer]
-        (.validateResourceConfig real-provider request observer))
-      (validateDataResourceConfig [this request observer]
-        (.validateDataResourceConfig real-provider request observer))
-      (upgradeResourceState [this request observer]
-        (.upgradeResourceState real-provider request observer))
-      (configureProvider [this request observer]
-        (.configureProvider real-provider request observer))
-      (readResource [this request observer]
-        (.readResource real-provider request observer))
-      (planResourceChange [this request observer]
-        (.planResourceChange real-provider request observer))
-      (applyResourceChange [this request observer]
-        (.applyResourceChange real-provider request observer))
-      (importResourceState [this request observer]
-        (.importResourceState real-provider request observer))
-      (readDataSource [this request observer]
-        (.readDataSource real-provider request observer))
-      (stopProvider [this request observer]
-        (.stopProvider real-provider request observer)))))
+    (->provider-proxy ProviderGrpc$ProviderImplBase real-provider)))
+
+(defmacro ->provider-proxy [interface-class provider & overrides]
+  (let [override-map (apply hash-map overrides)
+        methods (.getMethods (resolve interface-class))
+        method-names (->> (map #(.getName %) methods)
+                          (filter (fn [x] (not (#{"bindService"
+                                                  "equals"
+                                                  "toString"
+                                                  "hashCode"
+                                                  "getClass"
+                                                  "notify"
+                                                  "notifyAll"
+                                                  "wait"} x)))))]
+    `(proxy [~interface-class] []
+       ~@(for [m-name method-names]
+           (if-let [custom-impl (get override-map (keyword m-name))]
+             `(~(symbol m-name) [& args#] (apply ~custom-impl args#))
+             `(~(symbol m-name) [request# observer#]
+                                (tap> [(keyword ~m-name) [request# observer#]])
+                                (~(symbol (str "." m-name)) ~provider request# observer#)))))))
+
+(comment
+  (-> (resolve 'ProviderGrpc$ProviderImplBase)
+      .getMethods
+      (->> (mapv #(.getParameters %))
+           (mapv count))
+
+      #_(->> (map #(.getName %))
+             (filter (fn [x] (not (#{"bindService"
+                                     "equals"
+                                     "toString"
+                                     "hashCode"
+                                     "getClass"
+                                     "notify"
+                                     "notifyAll"
+                                     "wait"} x)))))))
+
