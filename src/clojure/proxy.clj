@@ -12,8 +12,6 @@
    [io.netty.channel.unix DomainSocketAddress]
    [java.io Closeable File]))
 
-(declare ->provider-proxy)
-
 (defn ->proxy-observer [observer]
   (let [values (atom [])        ;; State to hold the stream values
         completed (atom false)  ;; To track if onCompleted was called
@@ -38,11 +36,6 @@
          :completed @completed
          :error @error}))))
 
-(defn ->proxy-provider-service [^ManagedChannel real-channel]
-  (tap> real-channel)
-  (let [real-provider (ProviderGrpc/newStub real-channel)]
-    (->provider-proxy ProviderGrpc$ProviderImplBase real-provider)))
-
 (defmacro ->provider-proxy [interface-class provider & overrides]
   (let [override-map (apply hash-map overrides)
         methods (.getMethods (resolve interface-class))
@@ -60,9 +53,9 @@
            (if-let [custom-impl (get override-map (keyword m-name))]
              `(~(symbol m-name) [& args#] (apply ~custom-impl args#))
              `(~(symbol m-name) [request# observer#]
-                                (let [proxy-observer (->proxy-observer observer#)])
-                                (tap> [(keyword ~m-name) [request# proxy-observer]])
-                                (~(symbol (str "." m-name)) ~provider request# proxy-observer)))))))
+                                (let [proxy-observer# (->proxy-observer observer#)]
+                                  (tap> [(keyword ~m-name) [request# proxy-observer#]])
+                                  (~(symbol (str "." m-name)) ~provider request# proxy-observer#))))))))
 
 (comment
   (-> (resolve 'ProviderGrpc$ProviderImplBase)
@@ -79,6 +72,11 @@
                                      "notify"
                                      "notifyAll"
                                      "wait"} x)))))))
+
+(defn ->proxy-provider-service [^ManagedChannel real-channel]
+  (tap> real-channel)
+  (let [real-provider (ProviderGrpc/newStub real-channel)]
+    (->provider-proxy ProviderGrpc$ProviderImplBase real-provider)))
 
 (def proxy-socket-path "/tmp/tf-provider.sock")
 
