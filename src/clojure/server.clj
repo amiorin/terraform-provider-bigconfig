@@ -35,7 +35,7 @@
 
 (declare stop-server)
 
-(defn- get-os []
+(defn get-os []
   (let [os-name (System/getProperty "os.name" "generic")]
     (cond
       (.startsWith os-name "Mac OS X") :osx
@@ -101,7 +101,7 @@
 (def provider-schema {:provider {:block {}}
                       :resource_schemas {"bigconfig_rama" {:block {}}}})
 
-(defn- create-provider-service []
+(defn- ->provider-service []
   (proxy [ProviderGrpc$ProviderImplBase] []
     (planResourceChange [request observer]
       (let [response (-> (pr/clj-map->proto-map my-mapper PlanResourceChange$Response {})
@@ -137,7 +137,7 @@
 
 (comment
   (do
-    (defn- create-provider-service []
+    (defn- ->provider-service []
       (proxy [ProviderGrpc$ProviderImplBase] []
         (planResourceChange [request observer]
           (let [response (-> (pr/clj-map->proto-map my-mapper PlanResourceChange$Response {})
@@ -181,22 +181,22 @@
                           "TF_REATTACH_PROVIDERS" (json/generate-string data)}} "tofu plan")
     (stop-server)))
 
-(defn- create-server []
+(defn create-server [provider-service]
   (let [server-cert (io/file "certs/server-cert.pem")
         server-key (io/file "certs/server-key.pem")
         client-ca (io/file "certs/client-cert.pem")
         ssl-context (-> (GrpcSslContexts/forServer server-cert server-key)
                         (.trustManager client-ca)
                         (.clientAuth ClientAuth/REQUIRE)
-                        (.build))
-        provider-service (create-provider-service)]
+                        (.build))]
     (-> (new-uds-builder socket-path)
         #_(.sslContext ssl-context)
         (.addService provider-service)
         (.build))))
 
 (defn start-server []
-  (let [s (create-server)]
+  (let [provider-service (->provider-service)
+        s (create-server provider-service)]
     (reset! server s)
     (.start s)
     (-> data
