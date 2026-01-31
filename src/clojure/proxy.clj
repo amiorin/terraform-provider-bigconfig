@@ -1,6 +1,10 @@
 (ns proxy
   (:require
+   [babashka.process :as p]
+   [big-config :as bc]
+   [big-config.core :refer [->workflow ok]]
    [cheshire.core :as json]
+   [clojure.java.io :as io]
    [server :refer [create-server get-os]])
   (:import
    [clojure.lang IDeref]
@@ -137,3 +141,39 @@
   (future (start-server provider-service))
 
   (stop-server))
+
+(comment
+  (do
+    (defn start-and-wait [cmd regex]
+      (let [proc (p/process {:err :string} cmd) ;; Redirect stderr to see errors
+            reader (io/reader (:out proc))]
+        (try
+          (loop []
+            (if-let [line (.readLine reader)]
+              (if (re-find regex line)
+                [proc line]
+                (do (Thread/sleep 100)
+                    (recur)))
+              (throw (Exception. "Stream closed before regex was found"))))
+          (catch Exception e
+            (p/destroy proc) ;; Clean up if things go south
+            (throw e)))))
+    (defn start-hcloud-provider [opts]
+      (let [[proc line] (start-and-wait ".bin/terraform-provider-hcloud_v1.59.0 -debug" #"TF_REATTACH_PROVIDERS='.*'")]
+        (merge opts {::bc/err nil
+                     ::bc/exit 0
+                     ::provider-process proc
+                     ::socket (-> (second (re-find #"='(.*)'" line))
+                                  (json/parse-string)
+                                  (get-in ["registry.terraform.io/hetznercloud/hcloud" "Addr" "String"]))})))
+    (defn stop-hcloud-provider [{:keys [::provider-process] :as opts}]
+      (p/destroy provider-process)
+      (ok opts))
+    (def wf (->workflow {:first-step ::start
+                         :step-fns ["big-config.step-fns/bling-step-fn"]
+                         :wire-fn (fn [step _]
+                                    (case step
+                                      ::start [start-hcloud-provider ::stop]
+                                      ::stop [stop-hcloud-provider ::end]
+                                      ::end [identity]))}))
+    (wf {})))
