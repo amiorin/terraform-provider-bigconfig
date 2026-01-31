@@ -163,17 +163,40 @@
         (merge opts {::bc/err nil
                      ::bc/exit 0
                      ::provider-process proc
-                     ::socket (-> (second (re-find #"='(.*)'" line))
-                                  (json/parse-string)
-                                  (get-in ["registry.terraform.io/hetznercloud/hcloud" "Addr" "String"]))})))
+                     ::real-socket-path (-> (second (re-find #"='(.*)'" line))
+                                            (json/parse-string)
+                                            (get-in ["registry.terraform.io/hetznercloud/hcloud" "Addr" "String"]))})))
     (defn stop-hcloud-provider [{:keys [::provider-process] :as opts}]
       (p/destroy provider-process)
       (ok opts))
-    (def wf (->workflow {:first-step ::start
+    (defn start-proxy [{:keys [::real-socket-path] :as opts}]
+      (let [real-channel (closeable
+                          (create-grpc-channel real-socket-path)
+                          (fn [^ManagedChannel channel]
+                            (.shutdown channel)))
+            proxy-server (create-server (->proxy-provider-service @real-channel))
+            proxy-data {"registry.terraform.io/hetznercloud/hcloud" {:Protocol "grpc"
+                                                                     :ProtocolVersion 6
+                                                                     :Pid (.pid (java.lang.ProcessHandle/current))
+                                                                     :Test true
+                                                                     :Addr {:Network "unix"
+                                                                            :String "/tmp/tf-provider.sock"}}}]
+
+        (.start proxy-server)
+        (merge opts {::bc/err nil
+                     ::bc/exit 0
+                     ::proxy-server proxy-server
+                     ::proxy-data proxy-data})))
+    (defn stop-proxy [{:keys [::proxy-server] :as opts}]
+      (.shutdown proxy-server)
+      (ok opts))
+    (def wf (->workflow {:first-step ::start-real
                          :step-fns ["big-config.step-fns/bling-step-fn"]
                          :wire-fn (fn [step _]
                                     (case step
-                                      ::start [start-hcloud-provider ::stop]
-                                      ::stop [stop-hcloud-provider ::end]
+                                      ::start-real [start-hcloud-provider ::start-proxy]
+                                      ::start-proxy [start-proxy ::stop-proxy]
+                                      ::stop-proxy [stop-proxy ::stop-real]
+                                      ::stop-real [stop-hcloud-provider ::end]
                                       ::end [identity]))}))
     (wf {})))
