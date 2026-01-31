@@ -50,9 +50,9 @@
          :completed @completed
          :error @error}))))
 
-(defmacro ->provider-proxy [interface-class provider tap-fn & overrides]
+(defmacro proxy-service-macro [service stub tap-fn & overrides]
   (let [override-map (apply hash-map overrides)
-        methods (.getMethods (resolve interface-class))
+        methods (.getMethods (resolve service))
         method-names (->> (map #(.getName %) methods)
                           (filter (fn [x] (not (#{"bindService"
                                                   "equals"
@@ -62,20 +62,20 @@
                                                   "notify"
                                                   "notifyAll"
                                                   "wait"} x)))))]
-    `(proxy [~interface-class] []
-       ~@(for [m-name method-names]
-           (if-let [custom-impl (get override-map (keyword m-name))]
-             `(~(symbol m-name) [& args#] (apply ~custom-impl args#))
-             `(~(symbol m-name) [request# observer#]
-                                (let [proxy-observer# (->proxy-observer observer#)]
-                                  (~tap-fn (keyword ~m-name)
-                                           (pr/proto->proto-map provider-mapper request#)
-                                           proxy-observer#)
-                                  (~(symbol (str "." m-name)) ~provider request# proxy-observer#))))))))
+    `(proxy [~service] []
+       ~@(for [method-name method-names]
+           (if-let [custom-impl (get override-map (keyword method-name))]
+             `(~(symbol method-name) [& args#] (apply ~custom-impl args#))
+             `(~(symbol method-name) [request# observer#]
+                                     (let [proxy-observer# (->proxy-observer observer#)]
+                                       (~tap-fn (keyword ~method-name)
+                                                (pr/proto->proto-map provider-mapper request#)
+                                                proxy-observer#)
+                                       (~(symbol (str "." method-name)) ~stub request# proxy-observer#))))))))
 
-(defn ->proxy-provider-service [^ManagedChannel real-channel tap-fn]
-  (let [real-provider (ProviderGrpc/newStub real-channel)]
-    (->provider-proxy ProviderGrpc$ProviderImplBase real-provider tap-fn)))
+(defn ->proxy-service [^ManagedChannel real-channel tap-fn]
+  (let [real-stub (ProviderGrpc/newStub real-channel)]
+    (proxy-service-macro ProviderGrpc$ProviderImplBase real-stub tap-fn)))
 
 (defn closeable
   ([value] (closeable value identity))
@@ -85,7 +85,7 @@
                    Closeable
                    (close [_] (close value)))))
 
-(defn create-grpc-channel
+(defn socket->grpc-channel
   [socket-path]
   (let [socket-file (File. socket-path)
         os (get-os)
@@ -111,6 +111,7 @@
       (catch Exception e
         (p/destroy proc) ;; Clean up if things go south
         (throw e)))))
+
 (defn start-hcloud-provider [opts]
   (let [[proc line] (start-and-wait ".bin/terraform-provider-hcloud_v1.59.0 -debug" #"TF_REATTACH_PROVIDERS='.*'")]
     (merge opts {::bc/err nil
@@ -119,16 +120,18 @@
                  ::real-socket-path (-> (second (re-find #"='(.*)'" line))
                                         (json/parse-string)
                                         (get-in ["registry.terraform.io/hetznercloud/hcloud" "Addr" "String"]))})))
+
 (defn stop-hcloud-provider [{:keys [::provider-process] :as opts}]
   (p/destroy provider-process)
   (ok opts))
+
 (defn start-proxy [{:keys [::real-socket-path] :as opts}]
   (let [messages (atom [])
         real-channel (closeable
-                      (create-grpc-channel real-socket-path)
+                      (socket->grpc-channel real-socket-path)
                       (fn [^ManagedChannel channel]
                         (.shutdown channel)))
-        proxy-server (create-server (->proxy-provider-service @real-channel (fn [& xs] (swap! messages conj xs))))
+        proxy-server (create-server (->proxy-service @real-channel (fn [& xs] (swap! messages conj xs))))
         proxy-data {"registry.terraform.io/hetznercloud/hcloud" {:Protocol "grpc"
                                                                  :ProtocolVersion 6
                                                                  :Pid (.pid (java.lang.ProcessHandle/current))
@@ -143,10 +146,12 @@
                  ::proxy-data proxy-data
                  ::real-channel real-channel
                  ::messages messages})))
+
 (defn stop-proxy [{:keys [::proxy-server ::real-channel] :as opts}]
   (.shutdown proxy-server)
   (.close real-channel)
   (ok opts))
+
 (defn prepare [{:keys [::proxy-data] :as opts}]
   (merge opts {::run/shell-opts {:dir ".dist/alpha"
                                  :extra-env {"TF_REATTACH_PROVIDERS" (-> proxy-data
@@ -168,6 +173,7 @@
     (merge opts {::bc/exit 0
                  ::bc/err nil
                  ::messages messages})))
+
 (def proxy-wf (->workflow {:first-step ::start-real
                            :step-fns ["big-config.step-fns/bling-step-fn"]
                            :wire-fn (fn [step step-fns]
