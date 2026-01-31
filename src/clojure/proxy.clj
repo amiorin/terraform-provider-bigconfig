@@ -127,7 +127,7 @@
     channel))
 
 (comment
-  (def real-socket-path "/var/folders/r4/w6487z_x3jq6fzwt1w2k1v540000gn/T/plugin561459716")
+  (def real-socket-path "/var/folders/r4/w6487z_x3jq6fzwt1w2k1v540000gn/T/plugin2192534776")
   (def real-channel (closeable
                      (create-grpc-channel real-socket-path)
                      (fn [^ManagedChannel channel]

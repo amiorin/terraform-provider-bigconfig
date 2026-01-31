@@ -13,6 +13,4 @@
   (pr/defmapper my-mapper [GetProviderSchema$Response])
 
   (reset! debug-atom [])
-  (-> @debug-atom
-      second
-      second))
+  (-> @debug-atom))

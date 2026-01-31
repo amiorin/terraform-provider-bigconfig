@@ -1,0 +1,28 @@
+{:paths ["src/clojure" "target/classes"]
+ :deps {org.clojure/clojure {:mvn/version "1.12.3"}
+        io.grpc/grpc-netty {:mvn/version "1.78.0"}
+        io.grpc/grpc-stub {:mvn/version "1.78.0"}
+        io.grpc/grpc-protobuf {:mvn/version "1.78.0"}
+        io.grpc/grpc-services {:mvn/version "1.78.0"}
+
+        ;; Native dependencies with classifiers
+        io.netty/netty-transport-native-kqueue$osx-x86_64 {:mvn/version "4.1.100.Final"}
+        io.netty/netty-transport-native-kqueue$osx-aarch_64 {:mvn/version "4.1.100.Final"}
+        io.netty/netty-transport-native-epoll$linux-x86_64  {:mvn/version "4.1.100.Final"}
+        io.netty/netty-transport-native-epoll$linux-aarch_64  {:mvn/version "4.1.100.Final"}
+
+        io.netty/netty-tcnative-boringssl-static {:mvn/version "2.0.61.Final"}
+        com.google.protobuf/protobuf-java {:mvn/version "4.33.4"}
+        javax.annotation/javax.annotation-api {:mvn/version "1.3.2"}
+        cheshire/cheshire {:mvn/version "6.1.0"}
+        babashka/process {:mvn/version "0.6.25"}
+        com.shipclojure/pronto {:mvn/version "4.0.0"}
+
+        ;; Testing dependencies included in main for simplicity,
+        ;; or move to :test alias below
+        org.wiremock/wiremock-standalone {:mvn/version "3.13.2"}
+        org.wiremock/wiremock-grpc-extension {:mvn/version "0.11.0"}}
+
+ :aliases
+ {:dev
+  {:extra-paths ["dev"]}}}
