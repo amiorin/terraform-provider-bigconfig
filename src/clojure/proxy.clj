@@ -27,9 +27,9 @@
                                GetProviderSchema$Response])
 
 (defn ->proxy-observer [observer]
-  (let [values (atom [])        ;; State to hold the stream values
-        completed (atom false)  ;; To track if onCompleted was called
-        error (atom nil)]       ;; To track any exceptions
+  (let [values (atom [])
+        completed (atom false)
+        error (atom nil)]
     (reify StreamObserver
       (onNext [_ value]
         (swap! values conj (pr/proto->proto-map provider-mapper value))
@@ -159,6 +159,17 @@
                                         :target-dir ".dist/alpha"
                                         :transform [["root"
                                                      :raw]]}]}))
+
+    (defn fix-messages [{:keys [::messages] :as opts}]
+      (let [messages (-> messages
+                         deref
+                         (->> (mapv (fn [[procedure request response]]
+                                      [procedure request (-> @response
+                                                             :values
+                                                             first)]))))]
+        (merge opts {::bc/exit 0
+                     ::bc/err nil
+                     ::messages messages})))
     (def wf (->workflow {:first-step ::start-real
                          :step-fns ["big-config.step-fns/bling-step-fn"]
                          :wire-fn (fn [step step-fns]
@@ -169,6 +180,7 @@
                                       ::render [render/render ::exec]
                                       ::exec [(partial run/run-cmds step-fns) ::stop-proxy]
                                       ::stop-proxy [stop-proxy ::stop-real]
-                                      ::stop-real [stop-hcloud-provider ::end]
+                                      ::stop-real [stop-hcloud-provider ::fix-messages]
+                                      ::fix-messages [fix-messages ::end]
                                       ::end [identity]))}))
     (into (sorted-map) (wf {::bc/env :repl}))))
