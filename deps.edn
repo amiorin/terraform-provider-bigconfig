@@ -1,4 +1,4 @@
-{:paths ["src/clojure" "target/classes"]
+{:paths ["src/clojure" "target/classes" "resources"]
  :deps {org.clojure/clojure                                  {:mvn/version "1.12.3"}
         io.grpc/grpc-netty                                   {:mvn/version "1.78.0"}
         io.grpc/grpc-stub                                    {:mvn/version "1.78.0"}
