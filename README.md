@@ -9,6 +9,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 The patch number is calculated with `git rev-list --count HEAD`
 
+## [Unreleased] - 2026-01-31
+
+### Added
+
+- `proxy-wf` intercept the traffic between Terraform and a Terraform provider written in Go. The plan is to use it also for development and testing. The steps are:
+  - it starts the any Terraform provider in `debug` mode.
+  - it starts the `proxy` provider that intercept the traffic.
+  - it renders a main.tf.
+  - it runs `tofu plan`.
+  - it cleans up everyting.
+  - it derefs all the responses because gRPC is async.
+
 ## [Unreleased] - 2026-01-26
 
 ### Added 
