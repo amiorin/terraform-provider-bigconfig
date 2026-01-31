@@ -97,90 +97,90 @@
                            (.build)))]
     channel))
 
+(defn start-and-wait [cmd regex]
+  (let [proc (p/process {:err :string} cmd) ;; Redirect stderr to see errors
+        reader (io/reader (:out proc))]
+    (try
+      (loop []
+        (if-let [line (.readLine reader)]
+          (if (re-find regex line)
+            [proc line]
+            (do (Thread/sleep 100)
+                (recur)))
+          (throw (Exception. "Stream closed before regex was found"))))
+      (catch Exception e
+        (p/destroy proc) ;; Clean up if things go south
+        (throw e)))))
+(defn start-hcloud-provider [opts]
+  (let [[proc line] (start-and-wait ".bin/terraform-provider-hcloud_v1.59.0 -debug" #"TF_REATTACH_PROVIDERS='.*'")]
+    (merge opts {::bc/err nil
+                 ::bc/exit 0
+                 ::provider-process proc
+                 ::real-socket-path (-> (second (re-find #"='(.*)'" line))
+                                        (json/parse-string)
+                                        (get-in ["registry.terraform.io/hetznercloud/hcloud" "Addr" "String"]))})))
+(defn stop-hcloud-provider [{:keys [::provider-process] :as opts}]
+  (p/destroy provider-process)
+  (ok opts))
+(defn start-proxy [{:keys [::real-socket-path] :as opts}]
+  (let [messages (atom [])
+        real-channel (closeable
+                      (create-grpc-channel real-socket-path)
+                      (fn [^ManagedChannel channel]
+                        (.shutdown channel)))
+        proxy-server (create-server (->proxy-provider-service @real-channel (fn [& xs] (swap! messages conj xs))))
+        proxy-data {"registry.terraform.io/hetznercloud/hcloud" {:Protocol "grpc"
+                                                                 :ProtocolVersion 6
+                                                                 :Pid (.pid (java.lang.ProcessHandle/current))
+                                                                 :Test true
+                                                                 :Addr {:Network "unix"
+                                                                        :String "/tmp/tf-provider.sock"}}}]
+
+    (.start proxy-server)
+    (merge opts {::bc/err nil
+                 ::bc/exit 0
+                 ::proxy-server proxy-server
+                 ::proxy-data proxy-data
+                 ::real-channel real-channel
+                 ::messages messages})))
+(defn stop-proxy [{:keys [::proxy-server ::real-channel] :as opts}]
+  (.shutdown proxy-server)
+  (.close real-channel)
+  (ok opts))
+(defn prepare [{:keys [::proxy-data] :as opts}]
+  (merge opts {::run/shell-opts {:dir ".dist/alpha"
+                                 :extra-env {"TF_REATTACH_PROVIDERS" (-> proxy-data
+                                                                         json/generate-string)}}
+               ::run/cmds [#_"tofu init" "tofu plan"]
+               ::render/templates [{:template "alpha"
+                                    :overwrite true
+                                    :target-dir ".dist/alpha"
+                                    :transform [["root"
+                                                 :raw]]}]}))
+
+(defn fix-messages [{:keys [::messages] :as opts}]
+  (let [messages (-> messages
+                     deref
+                     (->> (mapv (fn [[procedure request response]]
+                                  [procedure request (-> @response
+                                                         :values
+                                                         first)]))))]
+    (merge opts {::bc/exit 0
+                 ::bc/err nil
+                 ::messages messages})))
+(def proxy-wf (->workflow {:first-step ::start-real
+                           :step-fns ["big-config.step-fns/bling-step-fn"]
+                           :wire-fn (fn [step step-fns]
+                                      (case step
+                                        ::start-real [start-hcloud-provider ::start-proxy]
+                                        ::start-proxy [start-proxy ::prepare]
+                                        ::prepare [prepare ::render]
+                                        ::render [render/render ::exec]
+                                        ::exec [(partial run/run-cmds step-fns) ::stop-proxy]
+                                        ::stop-proxy [stop-proxy ::stop-real]
+                                        ::stop-real [stop-hcloud-provider ::fix-messages]
+                                        ::fix-messages [fix-messages ::end]
+                                        ::end [identity]))}))
+
 (comment
-  (do
-    (defn start-and-wait [cmd regex]
-      (let [proc (p/process {:err :string} cmd) ;; Redirect stderr to see errors
-            reader (io/reader (:out proc))]
-        (try
-          (loop []
-            (if-let [line (.readLine reader)]
-              (if (re-find regex line)
-                [proc line]
-                (do (Thread/sleep 100)
-                    (recur)))
-              (throw (Exception. "Stream closed before regex was found"))))
-          (catch Exception e
-            (p/destroy proc) ;; Clean up if things go south
-            (throw e)))))
-    (defn start-hcloud-provider [opts]
-      (let [[proc line] (start-and-wait ".bin/terraform-provider-hcloud_v1.59.0 -debug" #"TF_REATTACH_PROVIDERS='.*'")]
-        (merge opts {::bc/err nil
-                     ::bc/exit 0
-                     ::provider-process proc
-                     ::real-socket-path (-> (second (re-find #"='(.*)'" line))
-                                            (json/parse-string)
-                                            (get-in ["registry.terraform.io/hetznercloud/hcloud" "Addr" "String"]))})))
-    (defn stop-hcloud-provider [{:keys [::provider-process] :as opts}]
-      (p/destroy provider-process)
-      (ok opts))
-    (defn start-proxy [{:keys [::real-socket-path] :as opts}]
-      (let [messages (atom [])
-            real-channel (closeable
-                          (create-grpc-channel real-socket-path)
-                          (fn [^ManagedChannel channel]
-                            (.shutdown channel)))
-            proxy-server (create-server (->proxy-provider-service @real-channel (fn [& xs] (swap! messages conj xs))))
-            proxy-data {"registry.terraform.io/hetznercloud/hcloud" {:Protocol "grpc"
-                                                                     :ProtocolVersion 6
-                                                                     :Pid (.pid (java.lang.ProcessHandle/current))
-                                                                     :Test true
-                                                                     :Addr {:Network "unix"
-                                                                            :String "/tmp/tf-provider.sock"}}}]
-
-        (.start proxy-server)
-        (merge opts {::bc/err nil
-                     ::bc/exit 0
-                     ::proxy-server proxy-server
-                     ::proxy-data proxy-data
-                     ::real-channel real-channel
-                     ::messages messages})))
-    (defn stop-proxy [{:keys [::proxy-server ::real-channel] :as opts}]
-      (.shutdown proxy-server)
-      (.close real-channel)
-      (ok opts))
-    (defn prepare [{:keys [::proxy-data] :as opts}]
-      (merge opts {::run/shell-opts {:dir ".dist/alpha"
-                                     :extra-env {"TF_REATTACH_PROVIDERS" (-> proxy-data
-                                                                             json/generate-string)}}
-                   ::run/cmds [#_"tofu init" "tofu plan"]
-                   ::render/templates [{:template "alpha"
-                                        :overwrite true
-                                        :target-dir ".dist/alpha"
-                                        :transform [["root"
-                                                     :raw]]}]}))
-
-    (defn fix-messages [{:keys [::messages] :as opts}]
-      (let [messages (-> messages
-                         deref
-                         (->> (mapv (fn [[procedure request response]]
-                                      [procedure request (-> @response
-                                                             :values
-                                                             first)]))))]
-        (merge opts {::bc/exit 0
-                     ::bc/err nil
-                     ::messages messages})))
-    (def wf (->workflow {:first-step ::start-real
-                         :step-fns ["big-config.step-fns/bling-step-fn"]
-                         :wire-fn (fn [step step-fns]
-                                    (case step
-                                      ::start-real [start-hcloud-provider ::start-proxy]
-                                      ::start-proxy [start-proxy ::prepare]
-                                      ::prepare [prepare ::render]
-                                      ::render [render/render ::exec]
-                                      ::exec [(partial run/run-cmds step-fns) ::stop-proxy]
-                                      ::stop-proxy [stop-proxy ::stop-real]
-                                      ::stop-real [stop-hcloud-provider ::fix-messages]
-                                      ::fix-messages [fix-messages ::end]
-                                      ::end [identity]))}))
-    (into (sorted-map) (wf {::bc/env :repl}))))
+  (into (sorted-map) (proxy-wf {::bc/env :repl})))
