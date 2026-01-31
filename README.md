@@ -13,6 +13,7 @@ The patch number is calculated with `git rev-list --count HEAD`
 
 ### Added
 
+- `big-config` to manage workflows.
 - `proxy-wf` intercept the traffic between Terraform and a Terraform provider written in Go. The plan is to use it also for development and testing. The steps are:
   - it starts the any Terraform provider in `debug` mode.
   - it starts the `proxy` provider that intercept the traffic.
@@ -20,6 +21,7 @@ The patch number is calculated with `git rev-list --count HEAD`
   - it runs `tofu plan`.
   - it cleans up everyting.
   - it derefs all the responses because gRPC is async.
+- `deps.edn` because of the Git dependency.
 
 ## [Unreleased] - 2026-01-26
 
@@ -28,7 +30,7 @@ The patch number is calculated with `git rev-list --count HEAD`
 - Fast development loop added. In emacs is possible to change the code of the Grpc service, reload the service, and run `tofu plan` to see the result with one keystroke.
 - Adopt the official grpc-java. All the other libraries in Clojure looked abondoned.
 - Clojure pronto to convert Clojure maps to protobuf. A thin layer to avoid to use the generated Java classes directly.
-- Buf to compile the proto file to Java classes
+- Buf to compile the proto file to Java classes.
 - Babashka doesn't work because it cannot load the generated Java classes.
 
 # Notes
