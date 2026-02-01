@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 The patch number is calculated with `git rev-list --count HEAD`
 
+## [Unreleased] - 2026-02-01
+
+### Added
+
+- two workflow `dev-wf` and `main-wf` instead of the server atom
+
 ## [Unreleased] - 2026-01-31
 
 ### Added
