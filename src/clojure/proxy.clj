@@ -131,7 +131,8 @@
                       (socket->grpc-channel real-socket-path)
                       (fn [^ManagedChannel channel]
                         (.shutdown channel)))
-        proxy-server (create-server (->proxy-service @real-channel (fn [& xs] (swap! messages conj xs))))
+        proxy-service (->proxy-service @real-channel (fn [& xs] (swap! messages conj xs)))
+        proxy-server (create-server proxy-service real-socket-path)
         proxy-data {"registry.terraform.io/hetznercloud/hcloud" {:Protocol "grpc"
                                                                  :ProtocolVersion 6
                                                                  :Pid (.pid (java.lang.ProcessHandle/current))
@@ -156,7 +157,7 @@
   (merge opts {::run/shell-opts {:dir ".dist/alpha"
                                  :extra-env {"TF_REATTACH_PROVIDERS" (-> proxy-data
                                                                          json/generate-string)}}
-               ::run/cmds [#_"tofu init" "tofu plan"]
+               ::run/cmds ["tofu init" "tofu plan"]
                ::render/templates [{:template "alpha"
                                     :overwrite true
                                     :target-dir ".dist/alpha"
