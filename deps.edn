@@ -17,7 +17,8 @@
         cheshire/cheshire                                    {:mvn/version "6.1.0"}
         babashka/process                                     {:mvn/version "0.6.25"}
         com.shipclojure/pronto                               {:mvn/version "4.0.0"}
-        io.github.amiorin/big-config                         {:git/sha "5656da2a16f1e475ef59aecd29bf0f27f2b52d85"}}
+        io.github.amiorin/big-config                         {:git/sha "5656da2a16f1e475ef59aecd29bf0f27f2b52d85"}
+        babashka/fs                                          {:mvn/version "0.5.30"}}
  :aliases
  {:run
   {:main-opts ["-m" "core"]}

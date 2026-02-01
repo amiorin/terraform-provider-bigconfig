@@ -1,5 +1,6 @@
 (ns server
   (:require
+   [babashka.fs :as fs]
    [big-config :as bc]
    [big-config.core :refer [->workflow ok]]
    [big-config.render :as render]
@@ -111,61 +112,76 @@
         (.addService provider-service)
         (.build))))
 
-(defn start [{:keys [::block] :as opts}]
-  (let [provider-socket-path "/tmp/tf-provider.sock"
-        provider-socket-file (File. provider-socket-path)
-        _ (when (.exists provider-socket-file)
-            (.delete provider-socket-file))
-        provider (create-server (->provider-service) provider-socket-path)
-        stop-server (fn []
-                      (.shutdown provider)
-                      (when-not (.awaitTermination provider 30 TimeUnit/SECONDS)
-                        (.shutdownNow provider)))
-        provider-data {"registry.terraform.io/amiorin/bigconfig" {:Protocol "grpc"
-                                                                  :ProtocolVersion 6
-                                                                  :Pid (.pid (java.lang.ProcessHandle/current))
-                                                                  :Test true
-                                                                  :Addr {:Network "unix"
-                                                                         :String provider-socket-path}}}]
-
-    (.start provider)
-    (when block
-      (.addShutdownHook (Runtime/getRuntime) (Thread. stop-server))
-      (.awaitTermination provider))
-    (merge opts (ok) {::provider-socket-path provider-socket-path
-                      ::provider provider
-                      ::provider-data provider-data})))
-
-(defn prepare [{:keys [::provider-data] :as opts}]
-  (let [dir "tests/first"
-        target-dir (format ".dist/%s" dir)]
-    (merge opts (ok) {::run/shell-opts {:dir target-dir
-                                        :out *out*
-                                        :err *err*
-                                        :extra-env {"TF_LOG" #_"DEBUG" "ERROR"
-                                                    "TF_REATTACH_PROVIDERS" (-> provider-data
-                                                                                json/generate-string)}}
-                      ::run/cmds [#_"tofu init" "tofu plan"]
-                      ::render/templates [{:template dir
-                                           :overwrite true
-                                           :target-dir target-dir
-                                           :transform [["root"
-                                                        :raw]]}]})))
-(defn stop [{:keys [::provider] :as opts}]
-  (.shutdown provider)
-  opts)
-
-(def dev-wf (->workflow {:first-step ::start
-                         :wire-fn (fn [step step-fns]
-                                    (case step
-                                      ::start [start ::prepare]
-                                      ::prepare [prepare ::render]
-                                      ::render [render/render ::exec]
-                                      ::exec [(partial run/run-cmds step-fns) ::end]
-                                      ::end [stop]))}))
-
 (comment
-  (into (sorted-map) (dev-wf {::bc/env :repl})))
+  (do
+    (defn start [{:keys [::block] :as opts}]
+      (let [socket-path (-> (fs/create-temp-file {:prefix "bigconfig-" :suffix ".sock"})
+                            (doto fs/delete-if-exists)
+                            .toAbsolutePath
+                            .toString)
+            server (create-server (->provider-service) socket-path)
+            stop-server (fn []
+                          (.shutdown server)
+                          (when-not (.awaitTermination server 30 TimeUnit/SECONDS)
+                            (.shutdownNow server)))
+            server-opts {"registry.terraform.io/amiorin/bigconfig" {:Protocol "grpc"
+                                                                    :ProtocolVersion 6
+                                                                    :Pid (.pid (java.lang.ProcessHandle/current))
+                                                                    :Test true
+                                                                    :Addr {:Network "unix"
+                                                                           :String socket-path}}}]
+
+        (.start server)
+        (when block
+          (.addShutdownHook (Runtime/getRuntime) (Thread. stop-server))
+          (.awaitTermination server))
+        (-> (ok opts)
+            (update ::servers (fnil conj []) {:socket-path socket-path
+                                              :server server
+                                              :opts server-opts}))))
+
+    (defn prepare [{:keys [::servers] :as opts}]
+      (let [server-opts (-> servers
+                            last
+                            :opts)
+            dir "tests/first"
+            target-dir (format ".dist/%s" dir)]
+        (merge opts (ok) {::run/shell-opts {:dir target-dir
+                                            :out *out*
+                                            :err *err*
+                                            :extra-env {"TF_LOG" #_"DEBUG" "ERROR"
+                                                        "TF_REATTACH_PROVIDERS" (-> server-opts
+                                                                                    json/generate-string)}}
+                          ::run/cmds [#_"tofu init" "tofu plan"]
+                          ::render/templates [{:template dir
+                                               :overwrite true
+                                               :target-dir target-dir
+                                               :transform [["root"
+                                                            :raw]]}]})))
+    (defn stop [{:keys [::servers] :as opts}]
+      (->> servers
+           (map :server)
+           (remove nil?)
+           (run! #(.shutdown %1)))
+      opts)
+
+    (defn start-proxy
+      [opts]
+      (ok opts))
+    (defn stop-proxy
+      [opts]
+      (ok opts))
+    (def dev-wf (->workflow {:first-step ::start
+                             :wire-fn (fn [step step-fns]
+                                        (case step
+                                          ::start [start ::prepare]
+                                          ::start-proxy [start-proxy ::prepare]
+                                          ::prepare [prepare ::render]
+                                          ::render [render/render ::exec]
+                                          ::exec [(partial run/run-cmds step-fns) ::end]
+                                          ::stop-proxy [stop-proxy ::stop-real]
+                                          ::end [stop]))}))
+    (into (sorted-map) (dev-wf {::bc/env :repl}))))
 
 (def main-wf (->workflow {:first-step ::start
                           :wire-fn (fn [step _]
@@ -176,4 +192,3 @@
 (comment
   (into (sorted-map) (main-wf {::block true
                                ::bc/env :repl})))
-
