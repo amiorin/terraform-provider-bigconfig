@@ -97,7 +97,7 @@
                            (.build)))]
     channel))
 
-(defn start-and-wait [cmd regex]
+(defn start-and-grep [cmd regex]
   (let [proc (p/process {:err :string} cmd) ;; Redirect stderr to see errors
         reader (io/reader (:out proc))]
     (try
@@ -113,7 +113,7 @@
         (throw e)))))
 
 (defn start-hcloud-provider [opts]
-  (let [[proc line] (start-and-wait ".bin/terraform-provider-hcloud_v1.59.0 -debug" #"TF_REATTACH_PROVIDERS='.*'")]
+  (let [[proc line] (start-and-grep ".bin/terraform-provider-hcloud_v1.59.0 -debug" #"TF_REATTACH_PROVIDERS='.*'")]
     (merge opts {::bc/err nil
                  ::bc/exit 0
                  ::provider-process proc

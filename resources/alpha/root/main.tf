@@ -1,14 +1,3 @@
-# terraform {
-#   required_providers {
-#     bigconfig = {
-#       source = "registry.terraform.io/amiorin/bigconfig"
-#     }
-#   }
-# }
-
-# resource "bigconfig_rama" "node1" {
-# }
-
 # Tell terraform to use the provider and select a version.
 terraform {
   backend "s3" {

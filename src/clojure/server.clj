@@ -1,11 +1,13 @@
 (ns server
   (:require
-   [babashka.process :as p]
+   [big-config :as bc]
+   [big-config.core :refer [->workflow ok]]
+   [big-config.render :as render]
+   [big-config.run :as run]
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [pronto.core :as pr])
   (:import
-   [clojure.lang IDeref]
    (com.terraform.plugin.v6
     ConfigureProvider$Request
     ConfigureProvider$Response
@@ -13,27 +15,20 @@
     GetProviderSchema$Response
     PlanResourceChange$Request
     PlanResourceChange$Response
-    ProviderGrpc
     ProviderGrpc$ProviderImplBase
     ServerCapabilities
     ValidateProviderConfig$Request
     ValidateProviderConfig$Response
     ValidateResourceConfig$Request
     ValidateResourceConfig$Response)
-   io.grpc.ManagedChannel
-   (io.grpc.netty NettyChannelBuilder NettyServerBuilder)
+   (io.grpc.netty NettyServerBuilder)
    (io.grpc.netty GrpcSslContexts)
-   io.grpc.Status
-   [io.grpc.stub StreamObserver]
    (io.netty.channel.epoll EpollEventLoopGroup EpollServerDomainSocketChannel)
-   (io.netty.channel.kqueue KQueueDomainSocketChannel KQueueEventLoopGroup KQueueServerDomainSocketChannel)
+   (io.netty.channel.kqueue KQueueEventLoopGroup KQueueServerDomainSocketChannel)
    (io.netty.channel.unix DomainSocketAddress)
    (io.netty.handler.ssl ClientAuth)
-   (java.io Closeable File)))
-
-(declare start-server)
-
-(declare stop-server)
+   (java.io File)
+   (java.util.concurrent TimeUnit)))
 
 (defn get-os []
   (let [os-name (System/getProperty "os.name" "generic")]
@@ -41,17 +36,6 @@
       (.startsWith os-name "Mac OS X") :osx
       (.startsWith os-name "Linux") :linux
       :else :unsupported)))
-
-(defonce server (atom nil))
-
-(def socket-path "/tmp/tf-provider.sock")
-
-(def data {"registry.terraform.io/amiorin/bigconfig" {:Protocol "grpc"
-                                                      :ProtocolVersion 6
-                                                      :Pid (.pid (java.lang.ProcessHandle/current))
-                                                      :Test true
-                                                      :Addr {:Network "unix"
-                                                             :String socket-path}}})
 
 (defn- new-uds-builder [socket-path]
   (let [socket-file (File. socket-path)
@@ -68,120 +52,53 @@
                   (throw (UnsupportedOperationException. "Unsupported OS")))]
     builder))
 
-(defn send-error!
-  "Sends a gRPC INTERNAL error with a custom message."
-  [observer msg]
-  (let [ex (-> Status/INTERNAL
-               (.withDescription (str msg))
-               (.asRuntimeException))]
-    (.onError observer ex)))
-
-(comment
-  (do
-    (pr/proto->proto-map my-mapper foo))
-  (do
-    (pr/clj-map->proto-map my-mapper PlanResourceChange$Response {:planned_state {}}))
-  (do
-    (def provider-schema {:provider {:block {}}
-                          :resource_schemas {"bigconfig_rama" {:block {}}}})
-    (pr/clj-map->proto-map my-mapper GetProviderSchema$Response provider-schema)))
-
-(pr/defmapper my-mapper [GetProviderSchema$Request
-                         GetProviderSchema$Response
-                         ValidateResourceConfig$Request
-                         ValidateResourceConfig$Response
-                         ValidateProviderConfig$Request
-                         ValidateProviderConfig$Response
-                         ConfigureProvider$Request
-                         ConfigureProvider$Response
-                         PlanResourceChange$Request
-                         PlanResourceChange$Response
-                         ServerCapabilities])
-
-(def provider-schema {:provider {:block {}}
-                      :resource_schemas {"bigconfig_rama" {:block {}}}})
+(pr/defmapper provider-mapper [GetProviderSchema$Request
+                               GetProviderSchema$Response
+                               ValidateResourceConfig$Request
+                               ValidateResourceConfig$Response
+                               ValidateProviderConfig$Request
+                               ValidateProviderConfig$Response
+                               ConfigureProvider$Request
+                               ConfigureProvider$Response
+                               PlanResourceChange$Request
+                               PlanResourceChange$Response
+                               ServerCapabilities])
 
 (defn- ->provider-service []
   (proxy [ProviderGrpc$ProviderImplBase] []
     (planResourceChange [request observer]
-      (let [response (-> (pr/clj-map->proto-map my-mapper PlanResourceChange$Response {})
+      (let [response (-> (pr/clj-map->proto-map provider-mapper PlanResourceChange$Response {})
                          pr/proto-map->proto)]
         (doto observer
           (.onNext response)
           (.onCompleted))))
     (configureProvider [request observer]
-      (let [response (-> (pr/clj-map->proto-map my-mapper ConfigureProvider$Response {})
+      (let [response (-> (pr/clj-map->proto-map provider-mapper ConfigureProvider$Response {})
                          pr/proto-map->proto)]
         (doto observer
           (.onNext response)
           (.onCompleted))))
     (validateProviderConfig [request observer]
-      (let [response (-> (pr/clj-map->proto-map my-mapper ValidateProviderConfig$Response {})
+      (let [response (-> (pr/clj-map->proto-map provider-mapper ValidateProviderConfig$Response {})
                          pr/proto-map->proto)]
         (doto observer
           (.onNext response)
           (.onCompleted))))
     (validateResourceConfig [request observer]
-      (let [response (-> (pr/clj-map->proto-map my-mapper ValidateResourceConfig$Response {})
+      (let [response (-> (pr/clj-map->proto-map provider-mapper ValidateResourceConfig$Response {})
                          pr/proto-map->proto)]
         (doto observer
           (.onNext response)
           (.onCompleted))))
     (getProviderSchema [request observer]
-      #_(send-error! observer "getProviderSchema")
-      (let [response (-> (pr/clj-map->proto-map my-mapper GetProviderSchema$Response provider-schema)
+      (let [response (-> (pr/clj-map->proto-map provider-mapper GetProviderSchema$Response {:provider {:block {}}
+                                                                                            :resource_schemas {"bigconfig_rama" {:block {}}}})
                          pr/proto-map->proto)]
         (doto observer
           (.onNext response)
           (.onCompleted))))))
 
-(comment
-  (do
-    (defn- ->provider-service []
-      (proxy [ProviderGrpc$ProviderImplBase] []
-        (planResourceChange [request observer]
-          (let [response (-> (pr/clj-map->proto-map my-mapper PlanResourceChange$Response {})
-                             pr/proto-map->proto)]
-            (doto observer
-              (.onNext response)
-              (.onCompleted))))
-        (configureProvider [request observer]
-          (let [response (-> (pr/clj-map->proto-map my-mapper ConfigureProvider$Response {})
-                             pr/proto-map->proto)]
-            (doto observer
-              (.onNext response)
-              (.onCompleted))))
-        (validateProviderConfig [request observer]
-          (let [response (-> (pr/clj-map->proto-map my-mapper ValidateProviderConfig$Response {})
-                             pr/proto-map->proto)]
-            (doto observer
-              (.onNext response)
-              (.onCompleted))))
-        (validateResourceConfig [request observer]
-          (let [response (-> (pr/clj-map->proto-map my-mapper ValidateResourceConfig$Response {})
-                             pr/proto-map->proto)]
-            (doto observer
-              (.onNext response)
-              (.onCompleted))))
-        (getProviderSchema [request observer]
-          #_(send-error! observer "getProviderSchema")
-          (let [response (-> (pr/clj-map->proto-map my-mapper GetProviderSchema$Response provider-schema)
-                             pr/proto-map->proto)]
-            (doto observer
-              (.onNext response)
-              (.onCompleted))))))
-    (let [socket-file (File. socket-path)]
-      (when (.exists socket-file)
-        (.delete socket-file)))
-    (future (start-server))
-    (p/shell {:continue true
-              :out *out*
-              :err *err*
-              :extra-env {"TF_LOG" #_"DEBUG" "ERROR"
-                          "TF_REATTACH_PROVIDERS" (json/generate-string data)}} "tofu plan")
-    (stop-server)))
-
-(defn create-server [provider-service]
+(defn create-server [provider-service socket-path]
   (let [server-cert (io/file "certs/server-cert.pem")
         server-key (io/file "certs/server-key.pem")
         client-ca (io/file "certs/client-cert.pem")
@@ -194,71 +111,69 @@
         (.addService provider-service)
         (.build))))
 
-(defn start-server []
-  (let [provider-service (->provider-service)
-        s (create-server provider-service)]
-    (reset! server s)
-    (.start s)
-    (-> data
-        json/generate-string
-        (->> (format "TF_REATTACH_PROVIDERS='%s'"))
-        println)
-    (.awaitTermination s)))
+(defn start [{:keys [::block] :as opts}]
+  (let [provider-socket-path "/tmp/tf-provider.sock"
+        provider-socket-file (File. provider-socket-path)
+        _ (when (.exists provider-socket-file)
+            (.delete provider-socket-file))
+        provider (create-server (->provider-service) provider-socket-path)
+        stop-server (fn []
+                      (.shutdown provider)
+                      (when-not (.awaitTermination provider 30 TimeUnit/SECONDS)
+                        (.shutdownNow provider)))
+        provider-data {"registry.terraform.io/amiorin/bigconfig" {:Protocol "grpc"
+                                                                  :ProtocolVersion 6
+                                                                  :Pid (.pid (java.lang.ProcessHandle/current))
+                                                                  :Test true
+                                                                  :Addr {:Network "unix"
+                                                                         :String provider-socket-path}}}]
 
-(defn stop-server []
-  (when-let [s @server]
-    (.shutdown s)
-    (reset! server nil)))
+    (.start provider)
+    (when block
+      (.addShutdownHook (Runtime/getRuntime) (Thread. stop-server))
+      (.awaitTermination provider))
+    (merge opts (ok) {::provider-socket-path provider-socket-path
+                      ::provider provider
+                      ::provider-data provider-data})))
 
-(defn -main [& _]
-  (let [socket-file (File. socket-path)]
-    (when (.exists socket-file)
-      (.delete socket-file)))
-  (.addShutdownHook (Runtime/getRuntime) (Thread. stop-server))
-  (start-server))
+(defn prepare [{:keys [::provider-data] :as opts}]
+  (let [dir "tests/first"
+        target-dir (format ".dist/%s" dir)]
+    (merge opts (ok) {::run/shell-opts {:dir target-dir
+                                        :out *out*
+                                        :err *err*
+                                        :extra-env {"TF_LOG" #_"DEBUG" "ERROR"
+                                                    "TF_REATTACH_PROVIDERS" (-> provider-data
+                                                                                json/generate-string)}}
+                      ::run/cmds [#_"tofu init" "tofu plan"]
+                      ::render/templates [{:template dir
+                                           :overwrite true
+                                           :target-dir target-dir
+                                           :transform [["root"
+                                                        :raw]]}]})))
+(defn stop [{:keys [::provider] :as opts}]
+  (.shutdown provider)
+  opts)
 
-(defn call-grpc
-  [grpc-channel]
-  (let [stub (ProviderGrpc/newStub grpc-channel)
-        request (-> (pr/clj-map->proto-map my-mapper GetProviderSchema$Request {})
-                    pr/proto-map->proto)]
-    (println "Calling hello RPC")
-    ;; Execute gRPC
-    (.getProviderSchema stub request
-                        (reify StreamObserver
-                          (onNext [_this value]
-                            (tap> value)
-                            value)
-                          (onError [_this _throwable])
-                          (onCompleted [_this])))))
-
-(defn closeable
-  ([value] (closeable value identity))
-  ([value close] (reify
-                   IDeref
-                   (deref [_] value)
-                   Closeable
-                   (close [_] (close value)))))
-
-(defn create-grpc-channel
-  [socket-path]
-  (let [socket-file (File. socket-path)
-        os (get-os)
-        channel (case os
-                  :osx (-> (NettyChannelBuilder/forAddress (DomainSocketAddress. socket-file))
-                           (.channelType KQueueDomainSocketChannel)
-                           (.eventLoopGroup (KQueueEventLoopGroup.))
-                           (.usePlaintext)
-                           (.build)))]
-    channel))
+(def dev-wf (->workflow {:first-step ::start
+                         :wire-fn (fn [step step-fns]
+                                    (case step
+                                      ::start [start ::prepare]
+                                      ::prepare [prepare ::render]
+                                      ::render [render/render ::exec]
+                                      ::exec [(partial run/run-cmds step-fns) ::end]
+                                      ::end [stop]))}))
 
 (comment
-  (with-open [channel-wrapper (closeable
-                               (create-grpc-channel socket-path)
-                               (fn [^ManagedChannel channel]
-                                 (.shutdown channel)))]
-    (call-grpc @channel-wrapper))
+  (into (sorted-map) (dev-wf {::bc/env :repl})))
 
-  (future (start-server))
+(def main-wf (->workflow {:first-step ::start
+                          :wire-fn (fn [step _]
+                                     (case step
+                                       ::start [start ::end]
+                                       ::end [identity]))}))
 
-  (stop-server))
+(comment
+  (into (sorted-map) (main-wf {::block true
+                               ::bc/env :repl})))
+
