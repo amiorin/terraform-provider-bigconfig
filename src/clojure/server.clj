@@ -118,6 +118,7 @@
 
 (defn ->socket-path []
   (-> (fs/create-temp-file {:prefix "bigconfig-" :suffix ".sock"})
+      (doto fs/delete)
       .toAbsolutePath
       .toString))
 
@@ -156,7 +157,7 @@
     (merge opts (ok) {::run/shell-opts {:dir target-dir
                                         :out *err*
                                         :err *err*
-                                        :extra-env {"TF_LOG" "TRACE" #_"ERROR"
+                                        :extra-env {"TF_LOG" #_"TRACE" "ERROR"
                                                     "TF_REATTACH_PROVIDERS" (-> server-opts
                                                                                 json/generate-string)}}
                       ::run/cmds ["tofu init" "tofu plan"]
@@ -255,7 +256,7 @@
                         (fn [^ManagedChannel channel]
                           (.shutdown channel)))
         service (->proxy-service @channel-handle (fn [& xs] (swap! messages conj xs)))
-        server (create-server service prev-socket-path)
+        server (create-server service socket-path)
         server-opts {provider-name {:Protocol "grpc"
                                     :ProtocolVersion 6
                                     :Pid (.pid (java.lang.ProcessHandle/current))
