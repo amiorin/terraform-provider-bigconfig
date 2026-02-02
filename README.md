@@ -9,6 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 The patch number is calculated with `git rev-list --count HEAD`
 
+## [Unreleased] - 2026-02-02
+
+### Added
+
+- refactored in three workflows: `dev-wf`, `main-wf`, `hcloud-wf`
+
 ## [Unreleased] - 2026-02-01
 
 ### Added

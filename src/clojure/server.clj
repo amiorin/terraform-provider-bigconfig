@@ -1,6 +1,7 @@
 (ns server
   (:require
    [babashka.fs :as fs]
+   [babashka.process :as p]
    [big-config :as bc]
    [big-config.core :refer [->workflow ok]]
    [big-config.render :as render]
@@ -147,11 +148,11 @@
                                           :server server
                                           :opts server-opts}))))
 
-(defn prepare [{:keys [::servers] :as opts}]
+(defn prepare [{:keys [::servers ::test-name] :as opts}]
   (let [server-opts (-> servers
                         last
                         :opts)
-        dir "tests/first"
+        dir (format "tests/%s" test-name)
         target-dir (format ".dist/%s" dir)]
     (merge opts (ok) {::run/shell-opts {:dir target-dir
                                         :out *err*
@@ -166,7 +167,10 @@
                                            :transform [["root"
                                                         :raw]]}]})))
 
-(defn stop [{:keys [::servers ::channels] :as opts}]
+(defn stop [{:keys [::servers ::channels ::processes] :as opts}]
+  (->> processes
+       (remove nil?)
+       (run! #(p/destroy %1)))
   (->> channels
        (remove nil?)
        (run! #(.shutdown %1)))
@@ -287,7 +291,53 @@
                                       ::end [stop]))}))
 
 (comment
-  (into (sorted-map) (dev-wf {::bc/env :repl})))
+  (into (sorted-map) (dev-wf {::bc/env :repl
+                              ::test-name "first"})))
+
+(defn start-and-grep [cmd regex]
+  (let [proc (p/process {:err :string} cmd) ;; Redirect stderr to see errors
+        reader (io/reader (:out proc))]
+    (try
+      (loop []
+        (if-let [line (.readLine reader)]
+          (if (re-find regex line)
+            [proc line]
+            (do (Thread/sleep 100)
+                (recur)))
+          (throw (Exception. "Stream closed before regex was found"))))
+      (catch Exception e
+        (p/destroy proc) ;; Clean up if things go south
+        (throw e)))))
+
+(defn start-hcloud [opts]
+  (let [[proc line] (start-and-grep ".bin/terraform-provider-hcloud_v1.59.0 -debug" #"TF_REATTACH_PROVIDERS='.*'")
+        provider-name "registry.terraform.io/hetznercloud/hcloud"
+        server-opts (-> (second (re-find #"='(.*)'" line))
+                        (json/parse-string))
+        socket-path (get-in server-opts [provider-name "Addr" "String"])]
+
+    (-> (ok opts)
+        (update ::processes (fnil conj []) proc)
+        (update ::servers (fnil conj []) {:proxy false
+                                          :provider-name provider-name
+                                          :socket-path socket-path
+                                          :server nil
+                                          :opts server-opts}))))
+
+(def hcloud-wf (->workflow {:first-step ::start
+                            :wire-fn (fn [step step-fns]
+                                       (case step
+                                         ::start [start-hcloud ::start-proxy]
+                                         ::start-proxy [start-proxy ::prepare]
+                                         ::prepare [prepare ::render]
+                                         ::render [render/render ::exec]
+                                         ::exec [(partial run/run-cmds step-fns) ::fix-messages]
+                                         ::fix-messages [fix-messages ::end]
+                                         ::end [stop]))}))
+
+(comment
+  (into (sorted-map) (hcloud-wf {::bc/env :repl
+                                 ::test-name "hcloud"})))
 
 (def main-wf (->workflow {:first-step ::start
                           :wire-fn (fn [step _]
