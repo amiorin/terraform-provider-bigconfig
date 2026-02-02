@@ -8,6 +8,7 @@
    [big-config.run :as run]
    [cheshire.core :as json]
    [clojure.java.io :as io]
+   [clojure.string :as str]
    [pronto.core :as pr])
   (:import
    (com.terraform.plugin.v6
@@ -314,6 +315,11 @@
         (throw e)))))
 
 (defn start-hcloud [opts]
+  (let [var-name "TF_VAR_hcloud_token"
+        value (System/getenv)]
+    (when (str/blank? value)
+      (throw (ex-info (str "Missing required environment variable: " var-name)
+                      opts))))
   (let [[proc line] (start-and-grep ".bin/terraform-provider-hcloud_v1.59.0 -debug" #"TF_REATTACH_PROVIDERS='.*'")
         provider-name "registry.terraform.io/hetznercloud/hcloud"
         server-opts (-> (second (re-find #"='(.*)'" line))
