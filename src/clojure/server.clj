@@ -272,6 +272,15 @@
                                           :server server
                                           :opts server-opts}))))
 
+(defn fix-messages [{:keys [::messages] :as opts}]
+  (let [messages (-> messages
+                     deref
+                     (->> (mapv (fn [[procedure request response]]
+                                  [procedure request (-> @response
+                                                         :values
+                                                         first)]))))]
+    (merge opts (ok) {::messages messages})))
+
 (def dev-wf (->workflow {:first-step ::start
                          :wire-fn (fn [step step-fns]
                                     (case step
@@ -279,7 +288,9 @@
                                       ::start-proxy [start-proxy ::prepare]
                                       ::prepare [prepare ::render]
                                       ::render [render/render ::exec]
-                                      ::exec [(partial run/run-cmds step-fns) ::end]
+                                      ::exec [(partial run/run-cmds step-fns) ::fix-messages
+                                              ]
+                                        ::fix-messages [fix-messages ::end]
                                       ::end [stop]))}))
 
 (comment
