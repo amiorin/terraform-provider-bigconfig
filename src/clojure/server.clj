@@ -9,7 +9,6 @@
    [clojure.java.io :as io]
    [pronto.core :as pr])
   (:import
-   [clojure.lang IDeref]
    (com.terraform.plugin.v6
     ConfigureProvider$Request
     ConfigureProvider$Response
@@ -32,7 +31,7 @@
    (io.netty.channel.kqueue KQueueDomainSocketChannel KQueueEventLoopGroup KQueueServerDomainSocketChannel)
    (io.netty.channel.unix DomainSocketAddress)
    (io.netty.handler.ssl ClientAuth)
-   (java.io Closeable File)
+   (java.io File)
    (java.util.concurrent TimeUnit)))
 
 (defn get-os []
@@ -166,19 +165,16 @@
                                            :target-dir target-dir
                                            :transform [["root"
                                                         :raw]]}]})))
-(defn stop [{:keys [::servers] :as opts}]
+
+(defn stop [{:keys [::servers ::channels] :as opts}]
+  (->> channels
+       (remove nil?)
+       (run! #(.shutdown %1)))
   (->> servers
        (map :server)
        (remove nil?)
        (run! #(.shutdown %1)))
   opts)
-(defn closeable
-  ([value] (closeable value identity))
-  ([value close] (reify
-                   IDeref
-                   (deref [_] value)
-                   Closeable
-                   (close [_] (close value)))))
 
 (defn socket->grpc-channel
   [socket-path]
@@ -191,6 +187,7 @@
                            (.usePlaintext)
                            (.build)))]
     channel))
+
 (defn ->proxy-observer [observer]
   (let [values (atom [])
         completed (atom false)
@@ -251,11 +248,8 @@
                           :provider-name)
         socket-path (->socket-path)
         messages (atom [])
-        channel-handle (closeable
-                        (socket->grpc-channel prev-socket-path)
-                        (fn [^ManagedChannel channel]
-                          (.shutdown channel)))
-        service (->proxy-service @channel-handle (fn [& xs] (swap! messages conj xs)))
+        channel (socket->grpc-channel prev-socket-path)
+        service (->proxy-service channel (fn [& xs] (swap! messages conj xs)))
         server (create-server service socket-path)
         server-opts {provider-name {:Protocol "grpc"
                                     :ProtocolVersion 6
@@ -265,7 +259,7 @@
                                            :String socket-path}}}]
     (.start server)
     (-> (merge opts (ok) {::messages messages})
-        (update ::channels (fnil conj []) channel-handle)
+        (update ::channels (fnil conj []) channel)
         (update ::servers (fnil conj []) {:proxy true
                                           :provider-name provider-name
                                           :socket-path socket-path
@@ -288,9 +282,8 @@
                                       ::start-proxy [start-proxy ::prepare]
                                       ::prepare [prepare ::render]
                                       ::render [render/render ::exec]
-                                      ::exec [(partial run/run-cmds step-fns) ::fix-messages
-                                              ]
-                                        ::fix-messages [fix-messages ::end]
+                                      ::exec [(partial run/run-cmds step-fns) ::fix-messages]
+                                      ::fix-messages [fix-messages ::end]
                                       ::end [stop]))}))
 
 (comment
