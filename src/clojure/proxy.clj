@@ -132,7 +132,7 @@
                       (fn [^ManagedChannel channel]
                         (.shutdown channel)))
         proxy-service (->proxy-service @real-channel (fn [& xs] (swap! messages conj xs)))
-        proxy-server (create-server proxy-service real-socket-path)
+        proxy-server (create-server proxy-service "/tmp/tf-provider.sock")
         proxy-data {"registry.terraform.io/hetznercloud/hcloud" {:Protocol "grpc"
                                                                  :ProtocolVersion 6
                                                                  :Pid (.pid (java.lang.ProcessHandle/current))
