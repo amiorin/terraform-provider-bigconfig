@@ -149,6 +149,10 @@
                                           :opts server-opts}))))
 
 (defn prepare [{:keys [::servers ::test-name] :as opts}]
+  (when-not (seq servers)
+    (throw (IllegalArgumentException. "::servers should never be empty")))
+  (when (nil? test-name)
+    (throw (IllegalArgumentException. "::test-name should never be nil")))
   (let [server-opts (-> servers
                         last
                         :opts)
