@@ -284,21 +284,6 @@
                                                          first)]))))]
     (merge opts (ok) {::messages messages})))
 
-(def dev-wf (->workflow {:first-step ::start
-                         :wire-fn (fn [step step-fns]
-                                    (case step
-                                      ::start [start ::start-proxy]
-                                      ::start-proxy [start-proxy ::prepare]
-                                      ::prepare [prepare ::render]
-                                      ::render [render/render ::exec]
-                                      ::exec [(partial run/run-cmds step-fns) ::fix-messages]
-                                      ::fix-messages [fix-messages ::end]
-                                      ::end [stop]))}))
-
-(comment
-  (into (sorted-map) (dev-wf {::bc/env :repl
-                              ::test-name "first"})))
-
 (defn start-and-grep [cmd regex]
   (let [proc (p/process {:err :string} cmd) ;; Redirect stderr to see errors
         reader (io/reader (:out proc))]
@@ -316,7 +301,7 @@
 
 (defn start-hcloud [opts]
   (let [var-name "TF_VAR_hcloud_token"
-        value (System/getenv)]
+        value (System/getenv var-name)]
     (when (str/blank? value)
       (throw (ex-info (str "Missing required environment variable: " var-name)
                       opts))))
@@ -333,6 +318,22 @@
                                           :socket-path socket-path
                                           :server nil
                                           :opts server-opts}))))
+
+(def dev-wf (->workflow {:first-step ::start
+                         :wire-fn (fn [step step-fns]
+                                    (case step
+                                      ::start [start ::start-proxy]
+                                      ::start-proxy [start-proxy ::prepare]
+                                      ::prepare [prepare ::render]
+                                      ::render [render/render ::exec]
+                                      ::exec [(partial run/run-cmds step-fns) ::fix-messages]
+                                      ::fix-messages [fix-messages ::end]
+                                      ::end [stop]))}))
+
+(comment
+  (into (sorted-map) (dev-wf {::bc/env :repl
+                              ::test-name "first"})))
+
 
 (def hcloud-wf (->workflow {:first-step ::start
                             :wire-fn (fn [step step-fns]
