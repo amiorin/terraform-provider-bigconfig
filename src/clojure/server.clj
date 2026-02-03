@@ -169,7 +169,7 @@
                       ::render/templates [{:template dir
                                            :overwrite true
                                            :target-dir target-dir
-                                           :transform [["root"
+                                           :transform [["."
                                                         :raw]]}]})))
 
 (defn stop [{:keys [::servers ::channels ::processes] :as opts}]

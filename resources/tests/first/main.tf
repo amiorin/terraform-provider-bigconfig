@@ -6,5 +6,5 @@ terraform {
   }
 }
 
-#resource "bigconfig_rama" "node1" {
-#}
+resource "bigconfig_rama" "node1" {
+}
