@@ -22,5 +22,18 @@ variable "hcloud_token" {
 
 # Configure the Hetzner Cloud Provider
 provider "hcloud" {
-  token = var.hcloud_token
+  endpoint = "https://api.hetzner.cloud/v1"
+  token    = var.hcloud_token
+}
+
+resource "hcloud_server" "node1" {
+  name        = "node1"
+  image       = "ubuntu-24.04"
+  server_type = "cx23"
+  location    = "hel1"
+  ssh_keys    = ["32617+amiorin@users.noreply.github.com"]
+  public_net {
+    ipv4_enabled = true
+    ipv6_enabled = false
+  }
 }

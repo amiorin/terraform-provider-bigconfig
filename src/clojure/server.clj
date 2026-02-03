@@ -9,11 +9,14 @@
    [cheshire.core :as json]
    [clojure.java.io :as io]
    [clojure.string :as str]
+   [com.rpl.specter :as s]
+   [msgpack.core :refer [unpack]]
    [pronto.core :as pr])
   (:import
    (com.terraform.plugin.v6
     ConfigureProvider$Request
     ConfigureProvider$Response
+    DynamicValue
     GetProviderSchema$Request
     GetProviderSchema$Response
     PlanResourceChange$Request
@@ -165,7 +168,7 @@
                                         :extra-env {"TF_LOG" #_"TRACE" "ERROR"
                                                     "TF_REATTACH_PROVIDERS" (-> server-opts
                                                                                 json/generate-string)}}
-                      ::run/cmds ["tofu init" "tofu plan"]
+                      ::run/cmds [#_"tofu init" "tofu plan"]
                       ::render/templates [{:template dir
                                            :overwrite true
                                            :target-dir target-dir
@@ -282,7 +285,7 @@
                                   [procedure request (-> @response
                                                          :values
                                                          first)]))))]
-    (merge opts (ok) {::messages messages})))
+    (merge opts (ok) {::messages (atom messages)})))
 
 (defn start-and-grep [cmd regex]
   (let [proc (p/process {:err :string} cmd) ;; Redirect stderr to see errors
@@ -334,7 +337,6 @@
   (into (sorted-map) (dev-wf {::bc/env :repl
                               ::test-name "first"})))
 
-
 (def hcloud-wf (->workflow {:first-step ::start
                             :wire-fn (fn [step step-fns]
                                        (case step
@@ -347,8 +349,36 @@
                                          ::end [stop]))}))
 
 (comment
-  (into (sorted-map) (hcloud-wf {::bc/env :repl
-                                 ::test-name "hcloud"})))
+  (do
+    (pr/defmapper provider-mapper [GetProviderSchema$Request
+                                   GetProviderSchema$Response
+                                   ValidateResourceConfig$Request
+                                   ValidateResourceConfig$Response
+                                   ValidateProviderConfig$Request
+                                   ValidateProviderConfig$Response
+                                   ConfigureProvider$Request
+                                   ConfigureProvider$Response
+                                   PlanResourceChange$Request
+                                   PlanResourceChange$Response
+                                   ServerCapabilities]
+      :encoders {DynamicValue
+                 {:from-proto (fn [^DynamicValue dynamic-value]
+                                {:msgpack (-> (.getMsgpack dynamic-value)
+                                              .toByteArray
+                                              (unpack #_{:extensions [null-ext]}))
+                                 :json (-> (.getJson dynamic-value)
+                                           .toByteArray
+                                           io/reader
+                                           (json/parse-stream true))})
+                  :to-proto identity}})
+    (defn process [v]
+      (when (map? v)
+        (println (class v))))
+    (-> (->> (into (sorted-map) (hcloud-wf {::bc/env :repl
+                                            ::test-name "hcloud"})))
+        ::messages
+        deref
+        (->> (s/transform [s/ALL s/MAP-VALS] #(doto % process))))))
 
 (def main-wf (->workflow {:first-step ::start
                           :wire-fn (fn [step _]
@@ -359,3 +389,13 @@
 (comment
   (into (sorted-map) (main-wf {::block true
                                ::bc/env :repl})))
+
+(comment
+  (do
+    (defonce s *1)
+    (defn process [v]
+      (when (map? v)
+        (println (class v))))
+    (-> s
+        ::messages
+        (->> (s/transform [s/ALL s/MAP-VALS] #(doto % process))))))
