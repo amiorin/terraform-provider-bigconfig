@@ -426,24 +426,70 @@
 (comment
   (do
     (defn parse-tf-type [p]
-      (let [parser (insta/parser "
-element = primitive | list | object | map | set
+      (let [parser (insta/parser
+                    "
+type = primitive | complex | nil
+nil = <''>
 string = <'string'>
 number = <'number'>
 bool = <'bool'>
 primitive =  <'\"'> (string | number | bool ) <'\"'>
+complex = list | object | map | set
+map = <'['> <'\"map\"'> <','> type <']'>
+set = <'['> <'\"set\"'> <','> type <']'>
+list = <'['> <'\"list\"'> <','> type <']'>
+object = <'['> <'\"object\"'> <','> <'{'> [pair (<','> pair)*] <'}'> <']'>
+pair = key <':'> type
+key = #'\"[a-zA-Z0-9_-]+\"'
+<whitespace> = #'\\s+' "
+                    #_"
+element = string | number | bool | list | object | map | set | nil
+type = element
+nil = <''>
+string = <'\"string\"'>
+number = <'\"number\"'>
+bool = <'\"bool\"'>
 map = <'['> <'\"map\"'> <','> element <']'>
 set = <'['> <'\"set\"'> <','> element <']'>
 list = <'['> <'\"list\"'> <','> element <']'>
 object = <'['> <'\"object\"'> <','> <'{'> [pair (<','> pair)*] <'}'> <']'>
-pair = key <':'> element
+pair = key <':'> type
 key = #'\"[a-zA-Z0-9_-]+\"'
 <whitespace> = #'\\s+'")]
-        (try (parser p)
-             (catch Throwable _
-               p))))
+        (parser p)))
     (let [resource-name "tf-type.txt"
           res (io/resource resource-name)]
-      (->> (slurp res)
-           str/split-lines
-           (map parse-tf-type)))))
+      (-> (slurp res)
+          str/split-lines
+          (->> (map parse-tf-type))))))
+
+;; "string"
+;; :string
+;; "number"
+;; :number
+;; "bool"
+;; :bool
+;; ["map","string"]
+;; [:map :string]
+;; ["set","string"]
+;; [:set :string]
+;; ["list","string"]
+;; [:list :string]
+;; ["list",["object",{"type":"string"}]]
+;; [:list [object {:type :string}]]
+;; ["list",["object",{"delete_protection":"bool","description":"string","home_location":"string","id":"number","ip_address":"string","ip_network":"string","labels":["map","string"],"name":"string","server_id":"number","type":"string"}]]
+;; [:list [:object {:delete_protection :bool :description :string :labels [:map :string]}]]
+;; ["list",["object",{"algorithm":["list",["object",{"type":"string"}]],"delete_protection":"bool","id":"number","ipv4":"string","ipv6":"string","labels":["map","string"],"load_balancer_type":"string","location":"string","name":"string","network_id":"number","network_ip":"string","network_zone":"string","service":["list",["object",{"destination_port":"number","health_check":["list",["object",{"http":["list",["object",{"domain":"string","path":"string","response":"string","status_codes":["list","number"],"tls":"bool"}]],"interval":"number","port":"number","protocol":"string","retries":"number","timeout":"number"}]],"http":["list",["object",{"certificates":["list","string"],"cookie_lifetime":"number","cookie_name":"string","redirect_http":"bool","sticky_sessions":"bool"}]],"listen_port":"number","protocol":"string","proxyprotocol":"bool"}]],"target":["list",["object",{"label_selector":"string","server_id":"number","type":"string"}]]}]]
+;; [:list [:object {:algorithm [:list [:object {:type :string}]] :delete_protection :bool}]]
+
+(comment
+  (defonce xs *1)
+  (-> xs
+      #_(nth 0)
+      #_(nth 9)
+      (nth 10)
+      ((fn transform [[_ [e t]]]
+         (case e
+           :primitive (first t)
+           :complex [(first t) (transform (second t))])))
+      prn-str))
