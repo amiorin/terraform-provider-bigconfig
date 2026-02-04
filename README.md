@@ -1,6 +1,19 @@
 # Intro
 Attempt to create a terraform provider in Clojure for BigConfig.
 
+## [Unreleased] - 2026-02-04
+
+### Added
+
+- add instaparse and the first grammar for Terraform types
+
+## [Unreleased] - 2026-02-03
+
+### Added
+
+- add msgpack
+- add encoder for DynamicValue
+
 ## [Unreleased] - 2026-02-02
 
 ### Added

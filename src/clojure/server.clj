@@ -10,9 +10,11 @@
    [clojure.java.io :as io]
    [clojure.string :as str]
    [com.rpl.specter :as s]
+   [instaparse.core :as insta]
    [msgpack.core :refer [unpack]]
    [pronto.core :as pr])
   (:import
+   [com.google.protobuf ByteString]
    (com.terraform.plugin.v6
     ConfigureProvider$Request
     ConfigureProvider$Response
@@ -23,6 +25,7 @@
     PlanResourceChange$Response
     ProviderGrpc
     ProviderGrpc$ProviderImplBase
+    Schema$Attribute
     ServerCapabilities
     ValidateProviderConfig$Request
     ValidateProviderConfig$Response
@@ -350,6 +353,19 @@
 
 (comment
   (do
+    (pr/defmapper internal-mapper [Schema$Attribute])
+
+    (defn parse-tf-type [^ByteString type]
+      (let [s (-> type
+                  .toByteArray
+                  io/reader
+                  slurp)]
+        (println s)
+        (case s
+          "string" :string
+          "number" :number
+          :unknown)))
+
     (pr/defmapper provider-mapper [GetProviderSchema$Request
                                    GetProviderSchema$Response
                                    ValidateResourceConfig$Request
@@ -361,24 +377,31 @@
                                    PlanResourceChange$Request
                                    PlanResourceChange$Response
                                    ServerCapabilities]
-      :encoders {DynamicValue
+      :encoders {Schema$Attribute
+                 {:from-proto (fn [^Schema$Attribute attribute]
+                                (->> (into {} (pr/proto->proto-map internal-mapper attribute))
+                                     (s/transform [:type] parse-tf-type)))
+                  :to-proto identity}
+                 DynamicValue
                  {:from-proto (fn [^DynamicValue dynamic-value]
                                 {:msgpack (-> (.getMsgpack dynamic-value)
                                               .toByteArray
-                                              (unpack #_{:extensions [null-ext]}))
+                                              unpack)
                                  :json (-> (.getJson dynamic-value)
                                            .toByteArray
                                            io/reader
                                            (json/parse-stream true))})
                   :to-proto identity}})
     (defn process [v]
-      (when (map? v)
-        (println (class v))))
-    (-> (->> (into (sorted-map) (hcloud-wf {::bc/env :repl
-                                            ::test-name "hcloud"})))
-        ::messages
-        deref
-        (->> (s/transform [s/ALL s/MAP-VALS] #(doto % process))))))
+      (binding [*out* *err*]
+        #_(println (class v))
+        (when (map? v)
+          (println (class v)))))
+    (->> (into (sorted-map) (hcloud-wf {::bc/env :repl
+                                        ::test-name "hcloud"}))
+         #_(s/select-one [::messages s/ATOM s/FIRST (s/nthpath 2) :provider :block :attributes])
+         (s/select-one [::messages s/ATOM])
+         #_(s/transform [s/ALL s/MAP-VALS] #(doto % process)))))
 
 (def main-wf (->workflow {:first-step ::start
                           :wire-fn (fn [step _]
@@ -399,3 +422,28 @@
     (-> s
         ::messages
         (->> (s/transform [s/ALL s/MAP-VALS] #(doto % process))))))
+
+(comment
+  (do
+    (defn parse-tf-type [p]
+      (let [parser (insta/parser "
+element = primitive | list | object | map | set
+string = <'string'>
+number = <'number'>
+bool = <'bool'>
+primitive =  <'\"'> (string | number | bool ) <'\"'>
+map = <'['> <'\"map\"'> <','> element <']'>
+set = <'['> <'\"set\"'> <','> element <']'>
+list = <'['> <'\"list\"'> <','> element <']'>
+object = <'['> <'\"object\"'> <','> <'{'> [pair (<','> pair)*] <'}'> <']'>
+pair = key <':'> element
+key = #'\"[a-zA-Z0-9_-]+\"'
+<whitespace> = #'\\s+'")]
+        (try (parser p)
+             (catch Throwable _
+               p))))
+    (let [resource-name "tf-type.txt"
+          res (io/resource resource-name)]
+      (->> (slurp res)
+           str/split-lines
+           (map parse-tf-type)))))
