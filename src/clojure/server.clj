@@ -440,7 +440,7 @@ set = <'['> <'\"set\"'> <','> type <']'>
 list = <'['> <'\"list\"'> <','> type <']'>
 object = <'['> <'\"object\"'> <','> <'{'> [pair (<','> pair)*] <'}'> <']'>
 pair = key <':'> type
-key = #'\"[a-zA-Z0-9_-]+\"'
+key = <'\"'> #'[a-zA-Z0-9_-]+' <'\"'>
 <whitespace> = #'\\s+' "
                     #_"
 element = string | number | bool | list | object | map | set | nil
@@ -483,13 +483,22 @@ key = #'\"[a-zA-Z0-9_-]+\"'
 ;; [:list [:object {:algorithm [:list [:object {:type :string}]] :delete_protection :bool}]]
 
 (comment
-  (defonce xs *1)
-  (-> xs
-      #_(nth 0)
-      #_(nth 9)
-      (nth 10)
-      ((fn transform [[_ [e t]]]
-         (case e
-           :primitive (first t)
-           :complex [(first t) (transform (second t))])))
-      prn-str))
+  (def xs *1)
+  (do
+    (defn transform [[type-or-pair xs ys]]
+      (case type-or-pair
+        :pair {(second xs) (transform ys)}
+        :type (let [group (first xs)
+                    tf-type (-> xs second first)
+                    tf-subtype (-> xs second second)
+                    pairs (-> xs second rest)]
+                (println group tf-type)
+                (case group
+                  :nil :nil
+                  :primitive tf-type
+                  :complex (case tf-type
+                             :object  [:object (reduce (fn [a x]
+                                                         (merge a (transform x))) {} pairs)]
+                             [tf-type (transform tf-subtype)])))))
+    (-> xs
+        (->> (map transform)))))
