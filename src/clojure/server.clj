@@ -355,16 +355,47 @@
   (do
     (pr/defmapper internal-mapper [Schema$Attribute])
 
-    (defn parse-tf-type [^ByteString type]
-      (let [s (-> type
-                  .toByteArray
-                  io/reader
-                  slurp)]
-        (println s)
-        (case s
-          "string" :string
-          "number" :number
-          :unknown)))
+    (defn insta->tf-type [[type-or-pair xs ys]]
+      (case type-or-pair
+        :pair {(second xs) (insta->tf-type ys)}
+        :type (let [group (first xs)
+                    tf-type (-> xs second first)
+                    tf-subtype (-> xs second second)
+                    pairs (-> xs second rest)]
+                (println group tf-type)
+                (case group
+                  :nil :nil
+                  :primitive tf-type
+                  :complex (case tf-type
+                             :object  [:object (reduce (fn [a x]
+                                                         (merge a (insta->tf-type x))) {} pairs)]
+                             [tf-type (insta->tf-type tf-subtype)])))))
+
+    (defn parse-tf-type [s]
+      (let [parser  (insta/parser "
+type = primitive | complex | nil
+nil = <''>
+string = <'string'>
+number = <'number'>
+bool = <'bool'>
+primitive =  <'\"'> (string | number | bool ) <'\"'>
+complex = list | object | map | set
+map = <'['> <'\"map\"'> <','> type <']'>
+set = <'['> <'\"set\"'> <','> type <']'>
+list = <'['> <'\"list\"'> <','> type <']'>
+object = <'['> <'\"object\"'> <','> <'{'> [pair (<','> pair)*] <'}'> <']'>
+pair = key <':'> type
+key = <'\"'> #'[a-zA-Z0-9_-]+' <'\"'>")]
+        (-> s
+            parser
+            insta->tf-type)))
+
+    (defn parse-bytes-string [^ByteString type]
+      (-> type
+          .toByteArray
+          io/reader
+          slurp
+          parse-tf-type))
 
     (pr/defmapper provider-mapper [GetProviderSchema$Request
                                    GetProviderSchema$Response
@@ -380,7 +411,7 @@
       :encoders {Schema$Attribute
                  {:from-proto (fn [^Schema$Attribute attribute]
                                 (->> (into {} (pr/proto->proto-map internal-mapper attribute))
-                                     (s/transform [:type] parse-tf-type)))
+                                     (s/transform [:type] parse-bytes-string)))
                   :to-proto identity}
                  DynamicValue
                  {:from-proto (fn [^DynamicValue dynamic-value]
@@ -400,8 +431,8 @@
     (->> (into (sorted-map) (hcloud-wf {::bc/env :repl
                                         ::test-name "hcloud"}))
          #_(s/select-one [::messages s/ATOM s/FIRST (s/nthpath 2) :provider :block :attributes])
-         (s/select-one [::messages s/ATOM])
-         #_(s/transform [s/ALL s/MAP-VALS] #(doto % process)))))
+         #_(s/select-one [::messages s/ATOM])
+         (s/transform [s/ALL s/MAP-VALS] #(doto % process)))))
 
 (def main-wf (->workflow {:first-step ::start
                           :wire-fn (fn [step _]
@@ -412,56 +443,6 @@
 (comment
   (into (sorted-map) (main-wf {::block true
                                ::bc/env :repl})))
-
-(comment
-  (do
-    (defonce s *1)
-    (defn process [v]
-      (when (map? v)
-        (println (class v))))
-    (-> s
-        ::messages
-        (->> (s/transform [s/ALL s/MAP-VALS] #(doto % process))))))
-
-(comment
-  (do
-    (defn parse-tf-type [p]
-      (let [parser (insta/parser
-                    "
-type = primitive | complex | nil
-nil = <''>
-string = <'string'>
-number = <'number'>
-bool = <'bool'>
-primitive =  <'\"'> (string | number | bool ) <'\"'>
-complex = list | object | map | set
-map = <'['> <'\"map\"'> <','> type <']'>
-set = <'['> <'\"set\"'> <','> type <']'>
-list = <'['> <'\"list\"'> <','> type <']'>
-object = <'['> <'\"object\"'> <','> <'{'> [pair (<','> pair)*] <'}'> <']'>
-pair = key <':'> type
-key = <'\"'> #'[a-zA-Z0-9_-]+' <'\"'>
-<whitespace> = #'\\s+' "
-                    #_"
-element = string | number | bool | list | object | map | set | nil
-type = element
-nil = <''>
-string = <'\"string\"'>
-number = <'\"number\"'>
-bool = <'\"bool\"'>
-map = <'['> <'\"map\"'> <','> element <']'>
-set = <'['> <'\"set\"'> <','> element <']'>
-list = <'['> <'\"list\"'> <','> element <']'>
-object = <'['> <'\"object\"'> <','> <'{'> [pair (<','> pair)*] <'}'> <']'>
-pair = key <':'> type
-key = #'\"[a-zA-Z0-9_-]+\"'
-<whitespace> = #'\\s+'")]
-        (parser p)))
-    (let [resource-name "tf-type.txt"
-          res (io/resource resource-name)]
-      (-> (slurp res)
-          str/split-lines
-          (->> (map parse-tf-type))))))
 
 ;; "string"
 ;; :string
@@ -481,24 +462,3 @@ key = #'\"[a-zA-Z0-9_-]+\"'
 ;; [:list [:object {:delete_protection :bool :description :string :labels [:map :string]}]]
 ;; ["list",["object",{"algorithm":["list",["object",{"type":"string"}]],"delete_protection":"bool","id":"number","ipv4":"string","ipv6":"string","labels":["map","string"],"load_balancer_type":"string","location":"string","name":"string","network_id":"number","network_ip":"string","network_zone":"string","service":["list",["object",{"destination_port":"number","health_check":["list",["object",{"http":["list",["object",{"domain":"string","path":"string","response":"string","status_codes":["list","number"],"tls":"bool"}]],"interval":"number","port":"number","protocol":"string","retries":"number","timeout":"number"}]],"http":["list",["object",{"certificates":["list","string"],"cookie_lifetime":"number","cookie_name":"string","redirect_http":"bool","sticky_sessions":"bool"}]],"listen_port":"number","protocol":"string","proxyprotocol":"bool"}]],"target":["list",["object",{"label_selector":"string","server_id":"number","type":"string"}]]}]]
 ;; [:list [:object {:algorithm [:list [:object {:type :string}]] :delete_protection :bool}]]
-
-(comment
-  (def xs *1)
-  (do
-    (defn transform [[type-or-pair xs ys]]
-      (case type-or-pair
-        :pair {(second xs) (transform ys)}
-        :type (let [group (first xs)
-                    tf-type (-> xs second first)
-                    tf-subtype (-> xs second second)
-                    pairs (-> xs second rest)]
-                (println group tf-type)
-                (case group
-                  :nil :nil
-                  :primitive tf-type
-                  :complex (case tf-type
-                             :object  [:object (reduce (fn [a x]
-                                                         (merge a (transform x))) {} pairs)]
-                             [tf-type (transform tf-subtype)])))))
-    (-> xs
-        (->> (map transform)))))
