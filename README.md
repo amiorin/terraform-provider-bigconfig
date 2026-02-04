@@ -89,3 +89,7 @@ buf curl --schema ./proto \
 - https://github.com/edma2/clojure-msgpack
 - https://github.com/rosejn/msgpack-cljc
 - https://github.com/pkcsecurity/msgpack-cljs
+
+# Terraform types
+- https://github.com/hfern/tf/blob/master/tf/types.py
+- https://github.com/opentofu/opentofu/blob/main/docs/plugin-protocol/object-wire-format.md
