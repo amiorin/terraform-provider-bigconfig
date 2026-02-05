@@ -1,6 +1,17 @@
 # Intro
 Attempt to create a terraform provider in Clojure for BigConfig.
 
+## [Unreleased] - 2026-02-05
+
+### Added
+
+- `byte-string->tf-type` and `tf-type->byte-string`
+- :encoders for `Schema$Attribute`
+
+### Removed
+
+- instaparse, `type` is just compacted JSON
+
 ## [Unreleased] - 2026-02-04
 
 ### Added
