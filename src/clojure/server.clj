@@ -128,39 +128,31 @@
                                        (json/parse-stream true))})
               :to-proto identity}})
 
+(defn- proto->map [request observer response-fn]
+  (let [response-class (-> (.getName (class request))
+                           (str/replace "$Request" "$Response")
+                           Class/forName)
+        request-map (pr/proto->proto-map provider-mapper request)
+        response (->> response-fn (request-map)
+                      (pr/clj-map->proto-map provider-mapper response-class)
+                      pr/proto-map->proto)]
+    (doto observer
+      (.onNext response)
+      (.onCompleted))))
+
 (defn- ->provider-service []
   (proxy [ProviderGrpc$ProviderImplBase] []
     (planResourceChange [request observer]
-      (let [response (-> (pr/clj-map->proto-map provider-mapper PlanResourceChange$Response {})
-                         pr/proto-map->proto)]
-        (doto observer
-          (.onNext response)
-          (.onCompleted))))
+      (proto->map request observer (constantly {})))
     (configureProvider [request observer]
-      (let [response (-> (pr/clj-map->proto-map provider-mapper ConfigureProvider$Response {})
-                         pr/proto-map->proto)]
-        (doto observer
-          (.onNext response)
-          (.onCompleted))))
+      (proto->map request observer (constantly {})))
     (validateProviderConfig [request observer]
-      (let [response (-> (pr/clj-map->proto-map provider-mapper ValidateProviderConfig$Response {})
-                         pr/proto-map->proto)]
-        (doto observer
-          (.onNext response)
-          (.onCompleted))))
+      (proto->map request observer (constantly {})))
     (validateResourceConfig [request observer]
-      (let [response (-> (pr/clj-map->proto-map provider-mapper ValidateResourceConfig$Response {})
-                         pr/proto-map->proto)]
-        (doto observer
-          (.onNext response)
-          (.onCompleted))))
+      (proto->map request observer (constantly {})))
     (getProviderSchema [request observer]
-      (let [response (-> (pr/clj-map->proto-map provider-mapper GetProviderSchema$Response {:provider {:block {}}
-                                                                                            :resource_schemas {"bigconfig_rama" {:block {}}}})
-                         pr/proto-map->proto)]
-        (doto observer
-          (.onNext response)
-          (.onCompleted))))))
+      (proto->map request observer (constantly {:provider {:block {}}
+                                                :resource_schemas {"bigconfig_rama" {:block {}}}})))))
 
 (defn create-server [provider-service socket-path]
   (let [server-cert (io/file "certs/server-cert.pem")
@@ -389,8 +381,39 @@
                                       ::end [stop]))}))
 
 (comment
-  (into (sorted-map) (dev-wf {::bc/env :repl
-                              ::test-name "first"})))
+  (do
+    (require '[user :as u])
+    (reset! u/debug-atom [])
+    (defn- proto->map [request observer response-fn]
+      (let [response-class (-> (.getName (class request))
+                               (str/replace "$Request" "$Response")
+                               Class/forName)
+            request-map (-> (pr/proto->proto-map provider-mapper request))
+            response (->  request-map
+                          response-fn
+                          (->> (pr/clj-map->proto-map provider-mapper response-class))
+                          pr/proto-map->proto)]
+        (doto observer
+          (.onNext response)
+          (.onCompleted))))
+
+    (defn- ->provider-service []
+      (proxy [ProviderGrpc$ProviderImplBase] []
+        (planResourceChange [request observer]
+          (proto->map request observer (constantly {})))
+        (configureProvider [request observer]
+          (proto->map request observer (constantly {})))
+        (validateProviderConfig [request observer]
+          (proto->map request observer (constantly {})))
+        (validateResourceConfig [request observer]
+          (proto->map request observer (constantly {})))
+        (getProviderSchema [request observer]
+          (proto->map request observer (constantly {:provider {:block {}}
+                                                    :resource_schemas {"bigconfig_rama" {:block {}}}})))))
+
+    (into (sorted-map) (dev-wf {::bc/env :repl
+                                ::test-name "first"}))
+    #_(-> @u/debug-atom)))
 
 (def hcloud-wf (->workflow {:first-step ::start
                             :wire-fn (fn [step step-fns]
