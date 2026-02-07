@@ -146,14 +146,14 @@
          `(~method [request# observer#]
                    (proto->map request# observer# (fn ~args ~@body))))))
 
-(defn- ->provider-service []
+(def provider-service
   (grpc-proxy ProviderGrpc$ProviderImplBase []
-              (planResourceChange [request] {})
-              (configureProvider [request] {})
-              (validateProviderConfig [request] {})
-              (validateResourceConfig [request] {})
-              (getProviderSchema [request] {:provider {:block {}}
-                                            :resource_schemas {"bigconfig_rama" {:block {}}}})))
+    (planResourceChange [request] {})
+    (configureProvider [request] {})
+    (validateProviderConfig [request] {})
+    (validateResourceConfig [request] {})
+    (getProviderSchema [request] {:provider {:block {}}
+                                  :resource_schemas {"bigconfig_rama" {:block {}}}})))
 
 (defn create-server [provider-service socket-path]
   (let [server-cert (io/file "certs/server-cert.pem")
@@ -177,7 +177,7 @@
 (defn start [{:keys [::block] :as opts}]
   (let [socket-path (->socket-path)
         provider-name "registry.terraform.io/amiorin/bigconfig"
-        server (create-server (->provider-service) socket-path)
+        server (create-server provider-service socket-path)
         stop-server (fn []
                       (.shutdown server)
                       (when-not (.awaitTermination server 30 TimeUnit/SECONDS)
