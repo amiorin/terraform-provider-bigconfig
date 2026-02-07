@@ -133,26 +133,27 @@
                            (str/replace "$Request" "$Response")
                            Class/forName)
         request-map (pr/proto->proto-map provider-mapper request)
-        response (->> response-fn (request-map)
+        response (->> (response-fn request-map)
                       (pr/clj-map->proto-map provider-mapper response-class)
                       pr/proto-map->proto)]
     (doto observer
       (.onNext response)
       (.onCompleted))))
 
+(defmacro grpc-proxy [service ctor & overrides]
+  `(proxy [~service] ~ctor
+     ~@(for [[method args & body] overrides]
+         `(~method [request# observer#]
+                   (proto->map request# observer# (fn ~args ~@body))))))
+
 (defn- ->provider-service []
-  (proxy [ProviderGrpc$ProviderImplBase] []
-    (planResourceChange [request observer]
-      (proto->map request observer (constantly {})))
-    (configureProvider [request observer]
-      (proto->map request observer (constantly {})))
-    (validateProviderConfig [request observer]
-      (proto->map request observer (constantly {})))
-    (validateResourceConfig [request observer]
-      (proto->map request observer (constantly {})))
-    (getProviderSchema [request observer]
-      (proto->map request observer (constantly {:provider {:block {}}
-                                                :resource_schemas {"bigconfig_rama" {:block {}}}})))))
+  (grpc-proxy ProviderGrpc$ProviderImplBase []
+              (planResourceChange [request] {})
+              (configureProvider [request] {})
+              (validateProviderConfig [request] {})
+              (validateResourceConfig [request] {})
+              (getProviderSchema [request] {:provider {:block {}}
+                                            :resource_schemas {"bigconfig_rama" {:block {}}}})))
 
 (defn create-server [provider-service socket-path]
   (let [server-cert (io/file "certs/server-cert.pem")
@@ -271,9 +272,8 @@
          :completed @completed
          :error @error}))))
 
-(defmacro proxy-service-macro [service stub tap-fn & overrides]
-  (let [override-map (apply hash-map overrides)
-        methods (.getMethods (resolve service))
+(defmacro proxy-service-macro [service stub tap-fn]
+  (let [methods (.getMethods (resolve service))
         method-names (->> (map #(.getName %) methods)
                           (filter (fn [x] (not (#{"bindService"
                                                   "equals"
@@ -285,14 +285,12 @@
                                                   "wait"} x)))))]
     `(proxy [~service] []
        ~@(for [method-name method-names]
-           (if-let [custom-impl (get override-map (keyword method-name))]
-             `(~(symbol method-name) [& args#] (apply ~custom-impl args#))
-             `(~(symbol method-name) [request# observer#]
-                                     (let [proxy-observer# (->proxy-observer observer#)]
-                                       (~tap-fn (keyword ~method-name)
-                                                (pr/proto->proto-map provider-mapper request#)
-                                                proxy-observer#)
-                                       (~(symbol (str "." method-name)) ~stub request# proxy-observer#))))))))
+           `(~(symbol method-name) [request# observer#]
+                                   (let [proxy-observer# (->proxy-observer observer#)]
+                                     (~tap-fn (keyword ~method-name)
+                                              (pr/proto->proto-map provider-mapper request#)
+                                              proxy-observer#)
+                                     (~(symbol (str "." method-name)) ~stub request# proxy-observer#)))))))
 
 (defn ->proxy-service [^ManagedChannel stub-channel tap-fn]
   (let [stub (ProviderGrpc/newStub stub-channel)]
@@ -384,33 +382,6 @@
   (do
     (require '[user :as u])
     (reset! u/debug-atom [])
-    (defn- proto->map [request observer response-fn]
-      (let [response-class (-> (.getName (class request))
-                               (str/replace "$Request" "$Response")
-                               Class/forName)
-            request-map (-> (pr/proto->proto-map provider-mapper request))
-            response (->  request-map
-                          response-fn
-                          (->> (pr/clj-map->proto-map provider-mapper response-class))
-                          pr/proto-map->proto)]
-        (doto observer
-          (.onNext response)
-          (.onCompleted))))
-
-    (defn- ->provider-service []
-      (proxy [ProviderGrpc$ProviderImplBase] []
-        (planResourceChange [request observer]
-          (proto->map request observer (constantly {})))
-        (configureProvider [request observer]
-          (proto->map request observer (constantly {})))
-        (validateProviderConfig [request observer]
-          (proto->map request observer (constantly {})))
-        (validateResourceConfig [request observer]
-          (proto->map request observer (constantly {})))
-        (getProviderSchema [request observer]
-          (proto->map request observer (constantly {:provider {:block {}}
-                                                    :resource_schemas {"bigconfig_rama" {:block {}}}})))))
-
     (into (sorted-map) (dev-wf {::bc/env :repl
                                 ::test-name "first"}))
     #_(-> @u/debug-atom)))

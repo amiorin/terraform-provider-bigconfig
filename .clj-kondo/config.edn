@@ -1,1 +1,4 @@
-{:lint-as {pronto.core/defmapper clojure.core/def}}
+{:lint-as {pronto.core/defmapper clojure.core/def}
+ :linters
+ {:unresolved-symbol
+  {:exclude [(server/grpc-proxy)]}}}

@@ -117,3 +117,7 @@ buf curl --schema ./proto \
 # Terraform types
 - https://github.com/hfern/tf/blob/master/tf/types.py
 - https://github.com/opentofu/opentofu/blob/main/docs/plugin-protocol/object-wire-format.md
+
+# clj-kondo for new macros
+- https://github.com/clj-kondo/clj-kondo/blob/master/doc/hooks.md
+- https://github.com/clj-kondo/configs
