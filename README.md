@@ -1,6 +1,12 @@
 # Intro
 Attempt to create a terraform provider in Clojure for BigConfig.
 
+## [Unreleased] - 2026-02-07
+
+### Added
+
+- `grpc-proxy` to be able to work with maps instead of proto
+
 ## [Unreleased] - 2026-02-05
 
 ### Added
